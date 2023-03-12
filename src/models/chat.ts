@@ -1,8 +1,10 @@
 var mongoose = require("mongoose");
 var Schema = mongoode.Schema;
 
-var ChatSchema = Schema({
+const textSchema = new Schema({datetime: Date, text: String})
 
+var chatSchema = Schema({
+  entries: [textSchema]
   },
   {collection: "chats"}
 );
