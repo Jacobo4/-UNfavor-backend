@@ -17,5 +17,8 @@ var FavorSchema = Schema(
   revews: {
     score: Number,
     descrpition: String
-  }
-)
+  },
+  {collection: "favors"}
+);
+
+module.exports = mongoose.model("DataBase", FavorSchema);
