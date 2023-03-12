@@ -1,7 +1,7 @@
 var mongoose = require("mongoose");
-var Schema = mongoode.Schema;
+var Schema = mongoose.Schema;
 
-var FavorSchema = Schema(
+var FavorSchema = Schema({
   user_published_id: mongoose.ObjectId,
   user_accepted_id: mongoose.ObjectId,
   date_published: Date,
@@ -17,7 +17,7 @@ var FavorSchema = Schema(
   revews: {
     score: Number,
     descrpition: String
-  },
+  }},
   {collection: "favors"}
 );
 
