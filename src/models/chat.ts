@@ -1,5 +1,5 @@
 var mongoose = require("mongoose");
-var Schema = mongoode.Schema;
+var Schema = mongoose.Schema;
 
 const textSchema = new Schema({datetime: Date, text: String})
 
@@ -9,4 +9,4 @@ var chatSchema = Schema({
   {collection: "chats"}
 );
 
-module.exports = mongoose.model("DataBase", ChatSchema);
+module.exports = mongoose.model("DataBase", chatSchema);

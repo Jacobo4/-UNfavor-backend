@@ -14,9 +14,9 @@ var FavorSchema = Schema({
   price: mongoose.Decimal128,
   location: String,
   chat_id: mongoose.ObjectId,
-  revews: {
+  reviews: {
     score: Number,
-    descrpition: String
+    description: String
   }},
   {collection: "favors"}
 );
