@@ -1,4 +1,3 @@
-import express from "express";
 import mongoose from "mongoose";
 import {config} from "./config/config";
 
@@ -17,6 +16,7 @@ mongoose.connect(config.mongo.url, {  retryWrites: true, w: 'majority' })
     .catch((err) => {
         console.log('Error connecting to MongoDB', err);
     });
+
 /*
 const StartServer = () => {
     router.use((req, res, next) => {

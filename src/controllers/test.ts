@@ -1,4 +1,4 @@
-const User = require("../models/user.ts");
+var User = require("../models/user.ts");
 
 var controller = {
 

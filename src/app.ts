@@ -2,6 +2,7 @@ import express from 'express';
 const app = express();
 
 //Routes files
+var route_user = require('./routes/user.ts');
 var routes_smth = require('./routes/smth.ts');
 
 //Middlewares
@@ -17,6 +18,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/api", routes_smth);
+app.use("/user", route_user);
 
 /*
 app.get('/', (req, res) => {
