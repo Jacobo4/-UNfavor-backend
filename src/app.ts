@@ -4,6 +4,7 @@ const app = express();
 //Routes files
 var route_user = require('./routes/user.ts');
 var routes_smth = require('./routes/smth.ts');
+var favors_routes = require('./routes/favor.ts');
 
 //Middlewares
 app.use(express.urlencoded({ extended: false }));
@@ -19,6 +20,7 @@ app.use((req, res, next) => {
 
 app.use("/api", routes_smth);
 app.use("/user", route_user);
+app.use("/favor", favors_routes);
 
 /*
 app.get('/', (req, res) => {
