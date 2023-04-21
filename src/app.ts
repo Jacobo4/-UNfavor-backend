@@ -20,7 +20,7 @@ app.use((req, res, next) => {
 
 app.use("/api", routes_smth);
 app.use("/user", route_user);
-app.use("/favor", favors_routes);
+app.use("/favor", favors_routes)
 
 /*
 app.get('/', (req, res) => {
