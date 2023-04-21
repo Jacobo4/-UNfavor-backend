@@ -1,5 +1,7 @@
+import { verify } from "crypto";
 import jwtService from "../services/jwt.service";
-var verifyToken = function (req, res, next) {
+
+const verifyToken = function (req, res, next) {
     try{
         var accessToken = req.headers.accesstoken;
         if(!accessToken) return res.status(401).send({ message:`Access token is required` });
@@ -15,4 +17,4 @@ var verifyToken = function (req, res, next) {
     }
 };
 
-module.exports = verifyToken;
+export default verifyToken;

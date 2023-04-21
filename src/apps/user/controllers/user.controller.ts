@@ -1,6 +1,6 @@
-var userService = require("../services/user.service.ts");
+import userService from "../services/user.service";
 
-var userController = {
+const userController = {
     signup: async function (req, res) {
         try{
             var user = await userService.signup(req.body);
@@ -36,7 +36,7 @@ var userController = {
 
     logout: async function (req, res) {
         try{
-            var tokens = await userService.logout(req);
+            var tokens = await userService.logout();
         }catch(error){
             console.log("ERROR: ", error.message);
             return res.status(401).send({ message: error.message, error });
@@ -70,4 +70,4 @@ var userController = {
 
 }
 
-module.exports = userController;
+export default userController;

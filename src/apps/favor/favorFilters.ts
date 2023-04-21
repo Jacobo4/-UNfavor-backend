@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
-const User = require("../../models/user");
+import User from '../user/models/user';
 
-var favorFilters = {
+const favorFilters = {
   changeFavorFilters: async function (req, res) {
     const userId = req.user.id;
 
@@ -62,3 +62,5 @@ var favorFilters = {
     });
   }
 }
+
+export default favorFilters;

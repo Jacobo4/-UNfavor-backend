@@ -1,9 +1,9 @@
-var express = require("express");
-var UserController = require("../controllers/user.controller");
+import express from 'express';
 
-var router = express.Router();
-var validateToken = require("../middlewares/validateToken.middleware");
+import UserController from '../controllers/user.controller';
+import validateToken from '../../authenticate/middlewares/validateToken.middleware';
 
+const router = express.Router();
 router.get("/user", async (req, res) => {
     res.status(200).send({
         message: "User Testing"
@@ -15,4 +15,5 @@ router.get("/refresh", UserController.refresh);
 router.get("/admin", validateToken, UserController.admin);
 router.get("/logout", UserController.logout)
 
-module.exports = router;
+export default router;
+

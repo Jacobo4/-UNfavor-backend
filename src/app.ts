@@ -1,15 +1,17 @@
 import express from 'express';
+
+//import routes
+import route_user from './apps/user/routes/user';
+import route_favor from './apps/favor/routes/favors';
+
 const app = express();
 
-//Routes files
-var route_user = require('./routes/user.ts');
-var routes_smth = require('./routes/smth.ts');
-var favors_routes = require('./routes/favor.ts');
 
 //Middlewares
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+//CORS
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method');
@@ -18,18 +20,8 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use("/api", routes_smth);
+//routes
 app.use("/user", route_user);
-app.use("/favor", favors_routes)
+app.use("/favor", route_favor);
 
-/*
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-app.listen(port, () => {
-  return console.log(`Express is listening at http://localhost:${port}`);
-});
-*/
-
-module.exports = app;
+export default app;

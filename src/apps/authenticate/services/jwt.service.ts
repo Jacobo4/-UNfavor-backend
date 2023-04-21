@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+
 class JwtService{
     generate(id, email){
         const access = jwt.sign(
