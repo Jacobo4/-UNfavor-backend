@@ -1,12 +1,26 @@
 import userService from "./user.service";
 
 const userController = {
+    getUser: async function (req, res) {
+        try{
+            var user = await userService.getInfo(req.user.id);
+        }catch(error){
+            console.log("ERROR: ", error.message);
+            return res.status(401).send({ message: error.message, error });
+        }
+        res.status(200).send({
+            message: "User found",
+            user: user,
+        });
+    },
     signup: async function (req, res) {
         try{
-            var user = await userService.signup(req.body);
+            var user = await userService.signup(req.body.user);
+            var favor = await userService.createFavor(req.body.favor);
             res.status(200).send({
                 message: "Saved user",
                 userInfo: user,
+                favorInfo: favor,
             });
         }catch (error) {
             console.log("ERROR: ", error.message);

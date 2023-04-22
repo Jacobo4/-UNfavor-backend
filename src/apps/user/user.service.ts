@@ -4,6 +4,11 @@ import User from './user.model';
 import Favor from '../favor/favor.model';
 
 const userService = {
+  getInfo: async function (userId){
+    let user = await User.findById(userId).exec();
+    if(!user) throw new Error(`User not found`);
+    return user;
+  },
   signup: async function (info){
     if(!info.password) throw new Error(`Password is required`);
     info.password = bcrypt.hashSync(info.password, bcrypt.genSaltSync(10));
