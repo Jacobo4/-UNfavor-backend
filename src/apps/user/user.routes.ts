@@ -1,7 +1,7 @@
 import express from 'express';
 
-import UserController from '../controllers/user.controller';
-import validateToken from '../../authenticate/middlewares/validateToken.middleware';
+import UserController from './user.controller';
+import validateToken from '../authenticate/validateToken.middleware';
 
 const router = express.Router();
 router.get("/user", async (req, res) => {

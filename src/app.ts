@@ -1,8 +1,8 @@
 import express from 'express';
 
 //import routes
-import route_user from './apps/user/routes/user';
-import route_favor from './apps/favor/routes/favors';
+import route_user from './apps/user/user.routes';
+import route_favor from './apps/favor/favor.routes';
 
 const app = express();
 

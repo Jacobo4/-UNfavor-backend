@@ -1,8 +1,8 @@
 import express from 'express';
 
-import favorFilters from '../controllers/favorFilters';
-import favor from '../controllers/favor';
-import validateToken from '../../authenticate/middlewares/validateToken.middleware';
+import favorFilters from './favorFilters.controller';
+import favor from './favor.controller';
+import validateToken from '../authenticate/validateToken.middleware';
 
 const router = express.Router();
 

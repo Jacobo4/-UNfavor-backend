@@ -1,20 +1,9 @@
 import bcrypt from "bcrypt";
-import jwtService from "../../authenticate/services/jwt.service";
-import User from '../models/user';
-import Favor from '../../favor/models/favor';
+import jwtService from "../authenticate/jwt.service";
+import User from './user.model';
+import Favor from '../favor/favor.model';
 
-const userService = { 
-  login: async function (info){
-    const { email, password } = info;
-    var user = await User.findOne({ email });
-    if (!user) throw new Error(`Invalid credentials`);
-
-    var validPassword = bcrypt.compareSync(password, user.password);
-    if (!validPassword) throw new Error(`Invalid credentials`);
-
-    var tokens = jwtService.generate(user._id, user.email);
-    return { user, tokens };
-  },
+const userService = {
   signup: async function (info){
     if(!info.password) throw new Error(`Password is required`);
     info.password = bcrypt.hashSync(info.password, bcrypt.genSaltSync(10));
@@ -25,6 +14,17 @@ const userService = {
     var result = await user.save();
     if(!result) throw new Error(`Error saving user`);
     if(result) return result;
+  },
+  login: async function (info){
+    const { email, password } = info;
+    var user = await User.findOne({ email });
+    if (!user) throw new Error(`Invalid credentials`);
+
+    var validPassword = bcrypt.compareSync(password, user.password);
+    if (!validPassword) throw new Error(`Invalid credentials`);
+
+    var tokens = jwtService.generate(user._id, user.email);
+    return { user, tokens };
   },
   logout: async function (){
     return jwtService.logout();
@@ -49,7 +49,12 @@ const userService = {
     if(!result) throw new Error(`Error saving favor`);
 
     return result;
-}
+  },
+  getUser: async function (userId){
+    let user = await User.findById(userId).exec();
+    if(!user) throw new Error(`User not found`);
+    return user;
+  }
 }
 
 export default userService;
