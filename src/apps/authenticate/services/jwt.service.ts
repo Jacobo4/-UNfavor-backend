@@ -29,8 +29,9 @@ class JwtService{
         return { access, refresh };
     }
 
-    verify(token){
-        if(jwt.decode(token).type === process.env.JWT_REFRESH) return jwt.verify(token, process.env.SECRET_REFRESH_KEY);
+    verify(token, type){
+        if(jwt.decode(token).type != type) return null;
+        if(type === process.env.JWT_REFRESH) return jwt.verify(token, process.env.SECRET_REFRESH_KEY);
         return jwt.verify(token, process.env.SECRET_ACCESS_KEY);
     }
 

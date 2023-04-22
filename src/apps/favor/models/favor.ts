@@ -21,4 +21,4 @@ var FavorSchema = Schema({
   {collection: "favors"}
 );
 
-module.exports = mongoose.model("DataBase", FavorSchema);
+export default mongoose.model("Favors", FavorSchema);

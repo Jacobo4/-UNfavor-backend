@@ -6,10 +6,10 @@ const verifyToken = function (req, res, next) {
         var accessToken = req.headers.accesstoken;
         if(!accessToken) return res.status(401).send({ message:`Access token is required` });
 
-        var verified = jwtService.verify(accessToken);
+        var verified = jwtService.verify(accessToken, process.env.JWT_ACCESS);
         if(!verified) return res.status(500).send({ message:`Failed to authenticate token` });
 
-        req.token = verified;
+        req.user = {id: verified.id, email: verified.email};
         next();
     }catch (error) {
         console.log("ERROR: ", error.message);
