@@ -20,4 +20,4 @@ const UserSchema = Schema({
     }
 }, {collection: "users"});
 
-export default mongoose.model("DataBase", UserSchema);//Nombre de la coleccion de la DB
+export default mongoose.model("Users", UserSchema);//Nombre de la coleccion de la DB

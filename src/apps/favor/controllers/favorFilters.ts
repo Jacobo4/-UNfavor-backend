@@ -1,6 +1,4 @@
-import mongoose from "mongoose";
-
-import User from '../user/models/user';
+import User from '../../user/models/user';
 
 const favorFilters = {
   changeFavorFilters: async function (req, res) {

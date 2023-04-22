@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwtService from "../../authenticate/services/jwt.service";
 import User from '../models/user';
+import Favor from '../../favor/models/favor';
 
 const userService = { 
   login: async function (info){
@@ -32,13 +33,23 @@ const userService = {
     var refreshToken = info.headers.refreshtoken;
     if(!refreshToken) throw new Error(`Refresh token is required`);
 
-    var payload = await jwtService.verify(refreshToken);
+    let payload = await jwtService.verify(refreshToken, process.env.JWT_REFRESH);
     if(!payload) throw new Error(`Invalid refresh token`);
 
     var accessToken = jwtService.generate(payload.id, payload.email).access;
     if(!accessToken) throw new Error(`Error generating access token`);
     return accessToken;
-  }
+  },
+  createFavor: async function (favorData){
+    let favor = new Favor(favorData);
+    console.log("FAVOR: ", favor);
+    if(!favor) throw new Error(`Error creating favor`);
+
+    let result = await favor.save();
+    if(!result) throw new Error(`Error saving favor`);
+
+    return result;
+}
 }
 
 export default userService;

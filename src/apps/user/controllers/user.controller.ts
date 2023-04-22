@@ -68,6 +68,19 @@ const userController = {
         });
     },
 
+    post: async function (req, res) {
+        try{
+            var favor = await userService.createFavor(req.body);
+        }catch(error){
+            console.log("ERROR: ", error.message);
+            return res.status(401).send({ message: error.message, error });
+        }
+        res.status(200).send({
+            message: "Favor created",
+            favor: favor,
+        });
+    }
+
 }
 
 export default userController;

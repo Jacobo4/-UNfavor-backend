@@ -9,4 +9,4 @@ var chatSchema = Schema({
   {collection: "chats"}
 );
 
-module.exports = mongoose.model("DataBase", chatSchema);
+export default mongoose.model("Chats", chatSchema);

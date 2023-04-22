@@ -1,6 +1,5 @@
 import express, { Request, Response } from 'express';
-
-const Favor = require('../models/favor');
+import Favor from '../models/favor';
 //Favores completados
 router.get('/completed_favors/:user_id', async (req: Request, res: Response) => {
   try {
