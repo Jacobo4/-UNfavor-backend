@@ -1,5 +1,5 @@
 import { verify } from "crypto";
-import jwtService from "../services/jwt.service";
+import jwtService from "./jwt.service";
 
 const verifyToken = function (req, res, next) {
     try{

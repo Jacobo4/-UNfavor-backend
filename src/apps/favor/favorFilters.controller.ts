@@ -1,4 +1,4 @@
-import User from '../../user/models/user';
+import User from '../user/user.model';
 
 const favorFilters = {
   changeFavorFilters: async function (req, res) {
