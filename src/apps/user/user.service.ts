@@ -35,7 +35,7 @@ const userService = {
     return jwtService.logout();
   },
   refresh: async function (info){
-    var refreshToken = info.headers.refreshtoken;
+    var refreshToken = info.body.refreshtoken;
     if(!refreshToken) throw new Error(`Refresh token is required`);
 
     let payload = await jwtService.verify(refreshToken, process.env.JWT_REFRESH);
