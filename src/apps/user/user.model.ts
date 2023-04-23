@@ -9,13 +9,21 @@ const UserSchema = Schema({
     age: Number,
     user_reviews_num: Number,
     user_reviews_sum: Number,
-    user_favors:[Schema.Types.ObjectId],
+    user_favors: [Schema.Types.ObjectId],
+    favor: {
+        user_published_id: mongoose.ObjectId,
+        date_published: Date,
+        title: String,
+        description: String,
+        category: String,
+        location: String,
+        chat_id: mongoose.ObjectId,
+        rank: {type: Number, default: 0},
+    },
     preferences: {
       favor_filters: {
         favor_type: {type: String, default: "Any"},
-        favor_date: {type: Date, default: new Date(2020, 0, 1)},
         max_distance_km: {type: Number, default: 50},
-        min_price_usd: {type: mongoose.Decimal128}
       }
     }
 }, {collection: "users"});
