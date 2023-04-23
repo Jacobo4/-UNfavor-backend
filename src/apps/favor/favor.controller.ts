@@ -6,7 +6,7 @@ const favor = {
         const userId = req.user.id;
         let user, favors;
         try{
-            user = await userService.getUser(userId);
+            user = await userService.getUserInfo(userId);
             favors = await favorService.getAll();
         }catch(error){
             console.log("ERROR: ", error.message);

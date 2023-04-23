@@ -3,7 +3,7 @@ import userService from "./user.service";
 const userController = {
     getUser: async function (req, res) {
         try{
-            var user = await userService.getInfo(req.user.id);
+            var user = await userService.getUserInfo(req.user.id);
         }catch(error){
             console.log("ERROR: ", error.message);
             return res.status(401).send({ message: error.message, error });
@@ -92,6 +92,31 @@ const userController = {
         res.status(200).send({
             message: "Favor created",
             favor: favor,
+        });
+    },
+
+    updateUser: async function (req, res){
+        try{
+            var user = await userService.updateUserProfileInfo(req.user.id, req.body.newUserData);
+        }catch(error){
+            console.log("ERROR: ", error.message);
+            return res.status(401).send({ message: error.message, error });
+        }
+        res.status(200).send({
+            message: "User Updated",
+            user: user,
+        });
+    },
+    deleteUser: async function (req, res){
+        try{
+            var user = await userService.deleteUser(req.user.id);
+        }catch(error){
+            console.log("ERROR: ", error.message);
+            return res.status(401).send({ message: error.message, error });
+        }
+        res.status(200).send({
+            message: "User Deleted",
+            user: user,
         });
     }
 

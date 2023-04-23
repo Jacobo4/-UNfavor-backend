@@ -8,7 +8,7 @@ const UserSchema = Schema({
     phone: String,
     age: Number,
     user_reviews_num: Number,
-    user_reviews_sum: Number,
+    user_reviews_avg: Number,
     user_favors: [Schema.Types.ObjectId],
     favor: {
         user_published_id: mongoose.ObjectId,

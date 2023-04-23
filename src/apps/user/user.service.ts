@@ -4,7 +4,7 @@ import User from './user.model';
 import Favor from '../favor/favor.model';
 
 const userService = {
-  getInfo: async function (userId){
+  getUserInfo: async function (userId){
     let user = await User.findById(userId).exec();
     if(!user) throw new Error(`User not found`);
     return user;
@@ -55,11 +55,31 @@ const userService = {
 
     return result;
   },
-  getUser: async function (userId){
-    let user = await User.findById(userId).exec();
-    if(!user) throw new Error(`User not found`);
-    return user;
+  updateUserProfileInfo: async function (userId,newUserData){
+    // Buscar y actualizar el usuario en la base de datos, newUserData es un objeto con los elementos a actualizar.
+    const updateUser = await User.findByIdAndUpdate(
+      userId,
+      newUserData,
+      { new: true } // Para obtener el objeto actualizado en la respuesta
+    );
+
+    // Comprobar si se encontró y actualizó el usuario
+    if (!updateUser) {
+      throw new Error("Usuario no encontrado"); // Lanza un error si no se encontró el usuario
+    }
+
+    // Retornar el usuario actualizado
+    return updateUser;
+    
+  },
+  deleteUser: async function (userId){
+    const deletedUser = await User.findByIdAndRemove(userId);
+    if (!deletedUser) {
+      throw new Error("Usuario not found"); // Lanza un error si no se encontró el usuario
+    }
+    return deletedUser;
   }
+  
 }
 
 export default userService;

@@ -9,7 +9,9 @@ router.post("/register", UserController.signup);
 router.post("/login", UserController.login);
 router.get("/refresh", UserController.refresh);
 router.get("/admin", validateToken, UserController.admin);
-router.get("/logout", UserController.logout)
+router.get("/logout", UserController.logout);
+router.post("/updateProfile",validateToken, UserController.updateUser);
+router.post("/deleteProfile",validateToken, UserController.deleteUser);
 
 export default router;
 
