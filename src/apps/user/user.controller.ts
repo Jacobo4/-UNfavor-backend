@@ -15,12 +15,14 @@ const userController = {
     },
     signup: async function (req, res) {
         try{
-            var user = await userService.signup(req.body.user);
+            var { result, tokens } = await userService.signup(req.body.user);
             var favor = await userService.createFavor(req.body.favor);
             res.status(200).send({
                 message: "Saved user",
-                userInfo: user,
+                userInfo: result,
                 favorInfo: favor,
+                access: tokens.access,
+                refresh: tokens.refresh,
             });
         }catch (error) {
             console.log("ERROR: ", error.message);
@@ -40,7 +42,7 @@ const userController = {
         if(!user) return res.status(401).send({ message: "Invalid credentials" });
         if(!tokens) return res.status(500).send({message: "Error generating tokens"});
 
-        res.header({'accesstoken': tokens.access, 'refreshtoken': tokens.refresh}).status(200).send({
+        res.status(200).send({
             message: "Logged in",
             access: tokens.access,
             refresh: tokens.refresh,
