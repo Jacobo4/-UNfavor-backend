@@ -3,7 +3,8 @@ import jwtService from "./jwt.service";
 
 const verifyToken = function (req, res, next) {
     try{
-        var accessToken = req.headers.accesstoken;
+        if(!req.headers.authorization) return res.status(401).send({ message:`Access token is required` });
+        var accessToken = req.headers.authorization.split("Bearer")[1].trim();
         if(!accessToken) return res.status(401).send({ message:`Access token is required` });
 
         var verified = jwtService.verify(accessToken, process.env.JWT_ACCESS);
