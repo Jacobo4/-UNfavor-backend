@@ -5,7 +5,7 @@ import Favor from '../favor/favor.model';
 
 const userService = {
   getUserInfo: async function (userId){
-    let user = await User.findById(userId).exec();
+    let user = await User.findById(userId).select('-password').exec();
     if(!user) throw new Error(`User not found`);
     return user;
   },
@@ -56,12 +56,22 @@ const userService = {
     return result;
   },
   updateUserProfileInfo: async function (userId,newUserData){
+    // Campos permitidos para actualización
+    const allowedFields = ['name', 'phone', 'age', 'preferences', 'favor.title', 'favor.description', 'favor.category', 'favor.location', ];
+
+    // Filtrar el objeto newUserData para permitir sólo los campos permitidos
+    const filteredUserData = Object.keys(newUserData)
+    .filter(field => allowedFields.includes(field))
+    .reduce((obj, field) => {
+        obj[field] = newUserData[field];
+        return obj;
+    }, {});
     // Buscar y actualizar el usuario en la base de datos, newUserData es un objeto con los elementos a actualizar.
     const updateUser = await User.findByIdAndUpdate(
       userId,
-      newUserData,
+      { $set: filteredUserData }, // Utilizar el operador $set para actualizar sólo los campos permitidos
       { new: true } // Para obtener el objeto actualizado en la respuesta
-    );
+    ).select('-password');
 
     // Comprobar si se encontró y actualizó el usuario
     if (!updateUser) {
