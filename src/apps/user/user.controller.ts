@@ -15,8 +15,9 @@ const userController = {
     },
     signup: async function (req, res) {
         try{
-            var { result, tokens } = await userService.signup(req.body.user);
             var favor = await userService.createFavor(req.body.favor);
+            req.body.user.favor = favor;
+            var { result, tokens } = await userService.signup(req.body.user);
             res.status(200).send({
                 message: "Saved user",
                 userInfo: result,
