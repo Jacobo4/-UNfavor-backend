@@ -18,7 +18,11 @@ const userService = {
 
     var result = await user.save();
     if(!result) throw new Error(`Error saving user`);
-    if(result) return result;
+
+    var tokens = jwtService.generate(result._id, result.email);
+    if(!tokens) throw new Error(`Error generating tokens`);
+
+    return { result, tokens };
   },
   login: async function (info){
     const { email, password } = info;

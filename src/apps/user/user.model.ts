@@ -7,8 +7,8 @@ const UserSchema = Schema({
     password: {type: String, required: true},
     phone: String,
     age: Number,
-    user_reviews_num: Number,
-    user_reviews_avg: Number,
+    user_reviews_num: {type: Number, default: 0},
+    user_reviews_avg: {type: Number, default: 0},
     user_favors: [Schema.Types.ObjectId],
     favor: {
         user_published_id: mongoose.ObjectId,
