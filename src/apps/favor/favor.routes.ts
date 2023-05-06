@@ -6,9 +6,9 @@ import validateToken from '../authenticate/validateToken.middleware';
 
 const router = express.Router();
 
+router.get("/favorFilters", validateToken, favorFilters.getFavorFilters);
+router.get("/favors", validateToken, favor.getFavors);
 router.post("/changeFavorFilters", validateToken, favorFilters.changeFavorFilters);
-router.get("/getFavorFilters", validateToken, favorFilters.getFavorFilters);
-router.get("/getFavors", validateToken, favor.getFavors);
 
 
 export default router;

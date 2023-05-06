@@ -2,10 +2,12 @@ import bcrypt from "bcrypt";
 import jwtService from "../authenticate/jwt.service";
 import User from './user.model';
 import Favor from '../favor/favor.model';
+import { _ } from "lodash";
+import axios from 'axios';
 
 const userService = {
   getUserInfo: async function (userId){
-    let user = await User.findById(userId).select('-password').exec();
+    let user = await User.findById(userId).select('-password -admin').exec();
     if(!user) throw new Error(`User not found`);
     return user;
   },
@@ -19,7 +21,7 @@ const userService = {
     var result = await user.save();
     if(!result) throw new Error(`Error saving user`);
 
-    var tokens = jwtService.generate(result._id, result.email);
+    var tokens = jwtService.generate(result._id, result.email, false);
     if(!tokens) throw new Error(`Error generating tokens`);
 
     return { result, tokens };
@@ -32,8 +34,23 @@ const userService = {
     var validPassword = bcrypt.compareSync(password, user.password);
     if (!validPassword) throw new Error(`Invalid credentials`);
 
-    var tokens = jwtService.generate(user._id, user.email);
+    try {
+      let chat = await this.loginChat({username: email, password});
+      console.log("Chat: ", chat);
+    } catch (error) {
+        throw new Error("Error login chat: "+error.toString());
+    }
+    var tokens = jwtService.generate(user._id, user.email, user.admin);
     return { user, tokens };
+  },
+  loginChat: async function (info){
+    const r = await axios.put('https://api.chatengine.io/users/',
+    { username: info.username, secret: info.password },
+    { headers: { "Private-Key": process.env.CHATENGINE_PRIVATE_KEY } }
+    );
+    if(!r) throw new Error(`Error creating chat user`);
+
+    return r.data;
   },
   logout: async function (){
     return jwtService.logout();
@@ -45,7 +62,7 @@ const userService = {
     let payload = await jwtService.verify(refreshToken, process.env.JWT_REFRESH);
     if(!payload) throw new Error(`Invalid refresh token`);
 
-    var accessToken = jwtService.generate(payload.id, payload.email).access;
+    var accessToken = jwtService.generate(payload.id, payload.email, payload.admin).access;
     if(!accessToken) throw new Error(`Error generating access token`);
     return accessToken;
   },
@@ -61,21 +78,17 @@ const userService = {
   },
   updateUserProfileInfo: async function (userId,newUserData){
     // Campos permitidos para actualización
-    const allowedFields = ['name', 'phone', 'age', 'preferences', 'favor.title', 'favor.description', 'favor.category', 'favor.location', ];
+    const allowedFields = ['name', 'phone', 'age', 'favor.title', 'favor.description', 'favor.location', ];
 
     // Filtrar el objeto newUserData para permitir sólo los campos permitidos
-    const filteredUserData = Object.keys(newUserData)
-    .filter(field => allowedFields.includes(field))
-    .reduce((obj, field) => {
-        obj[field] = newUserData[field];
-        return obj;
-    }, {});
+    const filteredUserData = _.pick(newUserData, allowedFields);
+    console.log("filteredUserData: ", filteredUserData);
     // Buscar y actualizar el usuario en la base de datos, newUserData es un objeto con los elementos a actualizar.
     const updateUser = await User.findByIdAndUpdate(
       userId,
       { $set: filteredUserData }, // Utilizar el operador $set para actualizar sólo los campos permitidos
       { new: true } // Para obtener el objeto actualizado en la respuesta
-    ).select('-password');
+    ).select('-password -admin').exec();
 
     // Comprobar si se encontró y actualizó el usuario
     if (!updateUser) {

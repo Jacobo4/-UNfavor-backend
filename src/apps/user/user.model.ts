@@ -7,6 +7,7 @@ const UserSchema = Schema({
     password: {type: String, required: true},
     phone: String,
     age: Number,
+    admin: {type: Boolean, default: false},
     user_reviews_num: {type: Number, default: 0},
     user_reviews_avg: {type: Number, default: 0},
     user_favors: [Schema.Types.ObjectId],

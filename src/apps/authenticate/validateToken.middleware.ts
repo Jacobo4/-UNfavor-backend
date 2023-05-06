@@ -1,4 +1,3 @@
-import { verify } from "crypto";
 import jwtService from "./jwt.service";
 
 const verifyToken = function (req, res, next) {
@@ -9,8 +8,7 @@ const verifyToken = function (req, res, next) {
 
         var verified = jwtService.verify(accessToken, process.env.JWT_ACCESS);
         if(!verified) return res.status(500).send({ message:`Failed to authenticate token` });
-
-        req.user = {id: verified.id, email: verified.email};
+        req.user = {id: verified.id, email: verified.email, admin: verified.admin};
         next();
     }catch (error) {
         console.log("ERROR: ", error.message);
