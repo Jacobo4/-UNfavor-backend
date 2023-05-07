@@ -21,7 +21,10 @@ const userService = {
     var result = await user.save();
     if(!result) throw new Error(`Error saving user`);
 
-    var tokens = jwtService.generate(result._id, result.email, false);
+    let chat = await this.loginChat({username: info.email, password: info.password});
+    if(!chat) throw new Error("Error login chat");
+
+    var tokens = jwtService.generate(result._id, result.email, false, chat.secret);
     if(!tokens) throw new Error(`Error generating tokens`);
 
     return { result, tokens };
@@ -36,12 +39,13 @@ const userService = {
     let chat = await this.loginChat({username: email, password});
     console.log("Chat: ", chat);
     if(!chat) throw new Error("Error login chat");
-    var tokens = jwtService.generate(user._id, user.email, user.admin);
-    return { user, tokens, chat: {username: chat.username, secret: chat.secret} };
+    var tokens = jwtService.generate(user._id, user.email, user.admin, chat.secret);
+    return { user, tokens };
   },
   loginChat: async function (info){
     try{
-        let r = await axios.get('https://api.chatengine.io/users/me/',
+        let r = await axios.put('https://api.chatengine.io/users/',
+        { username: info.username, secret: info.password },
         { headers: { "Private-Key": process.env.CHATENGINE_PRIVATE_KEY } }
         );
         return r.data;
@@ -59,7 +63,10 @@ const userService = {
     let payload = await jwtService.verify(refreshToken, process.env.JWT_REFRESH);
     if(!payload) throw new Error(`Invalid refresh token`);
 
-    var accessToken = jwtService.generate(payload.id, payload.email, payload.admin).access;
+    let chat = payload.chat;
+    if(!chat) throw new Error("Error login chat");
+
+    var accessToken = jwtService.generate(payload.id, payload.email, payload.admin, chat).access;
     if(!accessToken) throw new Error(`Error generating access token`);
     return accessToken;
   },

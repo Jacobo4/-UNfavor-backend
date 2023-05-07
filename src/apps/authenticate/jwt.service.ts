@@ -1,13 +1,14 @@
 import jwt from 'jsonwebtoken';
 
 class JwtService{
-    generate(id, email, admin){
+    generate(id, email, admin, secret){
         const access = jwt.sign(
             {
                 id: id,
                 email: email,
                 type: process.env.JWT_ACCESS,
                 admin: admin,
+                chat: secret,
             },
             process.env.SECRET_ACCESS_KEY,
             {
@@ -21,6 +22,7 @@ class JwtService{
                 email: email,
                 type: process.env.JWT_REFRESH,
                 admin: admin,
+                chat: secret,
             },
             process.env.SECRET_REFRESH_KEY,
             {
