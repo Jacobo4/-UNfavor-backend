@@ -21,10 +21,7 @@ const userService = {
     var result = await user.save();
     if(!result) throw new Error(`Error saving user`);
 
-    let chat = await this.loginChat({username: info.email, password: info.password});
-    if(!chat) throw new Error("Error login chat");
-
-    var tokens = jwtService.generate(result._id, result.email, false, chat.secret);
+    var tokens = jwtService.generate(result._id, result.email, false);
     if(!tokens) throw new Error(`Error generating tokens`);
 
     return { result, tokens };
@@ -36,10 +33,12 @@ const userService = {
 
     var validPassword = bcrypt.compareSync(password, user.password);
     if (!validPassword) throw new Error(`Invalid credentials`);
-    let chat = await this.loginChat({username: email, password});
+
+    let chat = await this.loginChat({username: email, password: user._id});
     console.log("Chat: ", chat);
     if(!chat) throw new Error("Error login chat");
-    var tokens = jwtService.generate(user._id, user.email, user.admin, chat.secret);
+
+    var tokens = jwtService.generate(user._id, user.email, user.admin);
     return { user, tokens };
   },
   loginChat: async function (info){
@@ -63,10 +62,7 @@ const userService = {
     let payload = await jwtService.verify(refreshToken, process.env.JWT_REFRESH);
     if(!payload) throw new Error(`Invalid refresh token`);
 
-    let chat = payload.chat;
-    if(!chat) throw new Error("Error login chat");
-
-    var accessToken = jwtService.generate(payload.id, payload.email, payload.admin, chat).access;
+    var accessToken = jwtService.generate(payload.id, payload.email, payload.admin).access;
     if(!accessToken) throw new Error(`Error generating access token`);
     return accessToken;
   },
