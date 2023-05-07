@@ -7,5 +7,6 @@
     "sourceMap": true,
     "outDir": "dist"
   },
-  "lib": ["es2016"]
+  "lib": ["es2016"],
+  "include": ["src/types.d.ts", "src/**/*.ts"]
 }
