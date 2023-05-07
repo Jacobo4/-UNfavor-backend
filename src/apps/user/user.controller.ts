@@ -34,7 +34,7 @@ const userController = {
     login: async function (req, res) {
 
         try{
-            var { user, tokens } = await userService.login(req.body);
+            var { user, tokens, chat } = await userService.login(req.body);
         }catch(error){
             console.log("ERROR: ", error.message);
             return res.status(401).send({ message: error.message, error });
@@ -47,6 +47,7 @@ const userController = {
             message: "Logged in",
             access: tokens.access,
             refresh: tokens.refresh,
+            chat
         });
 
     },
