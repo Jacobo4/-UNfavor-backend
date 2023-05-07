@@ -8,6 +8,7 @@ class JwtService{
                 email: email,
                 type: process.env.JWT_ACCESS,
                 admin: admin,
+
             },
             process.env.SECRET_ACCESS_KEY,
             {

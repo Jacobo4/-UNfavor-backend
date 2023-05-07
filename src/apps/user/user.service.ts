@@ -21,6 +21,9 @@ const userService = {
     var result = await user.save();
     if(!result) throw new Error(`Error saving user`);
 
+    let chat = await this.loginChat(user);
+    if(!chat) throw new Error("Error login chat");
+
     var tokens = jwtService.generate(result._id, result.email, false);
     if(!tokens) throw new Error(`Error generating tokens`);
 
@@ -34,23 +37,22 @@ const userService = {
     var validPassword = bcrypt.compareSync(password, user.password);
     if (!validPassword) throw new Error(`Invalid credentials`);
 
-    try {
-      let chat = await this.loginChat({username: email, password});
-      console.log("Chat: ", chat);
-    } catch (error) {
-        throw new Error("Error login chat: "+error.toString());
-    }
+    let chat = await this.loginChat(user);
+    if(!chat) throw new Error("Error login chat");
+
     var tokens = jwtService.generate(user._id, user.email, user.admin);
     return { user, tokens };
   },
   loginChat: async function (info){
-    const r = await axios.put('https://api.chatengine.io/users/',
-    { username: info.username, secret: info.password },
-    { headers: { "Private-Key": process.env.CHATENGINE_PRIVATE_KEY } }
-    );
-    if(!r) throw new Error(`Error creating chat user`);
-
-    return r.data;
+    try{
+        let r = await axios.put('https://api.chatengine.io/users/',
+        { username: info.email, secret: info._id, first_name: info.name },
+        { headers: { "Private-Key": process.env.CHATENGINE_PRIVATE_KEY } }
+        );
+        return r.data;
+    }catch(error){
+      throw new Error(`Error creating chat user. ${error.name}: ${error.message}`);
+    }
   },
   logout: async function (){
     return jwtService.logout();
