@@ -17,10 +17,9 @@ interface IChatUser {
   first_name: string;
 }
 
-interface IJWTService {
-  generate: (id: string, email: string, admin?: boolean) => { access: string; refresh: string };
-  verify: (token: string, secret: string) => Promise<any>;
-  logout: () => { access: string; refresh: string };
+interface ITokens {
+    access: string;
+    refresh: string;
 }
 
 const userService = {
@@ -29,11 +28,11 @@ const userService = {
     if (!user) throw new Error(`User not found`);
     return user;
   },
-  signup: async function (info: IUserInfo): Promise<{ result: IUser; tokens: { access: string; refresh: string } }> {
+  signup: async function (info: IUserInfo): Promise<{ result: IUser; tokens: ITokens }> {
     if (!info.password) throw new Error(`Password is required`);
     info.password = bcrypt.hashSync(info.password, bcrypt.genSaltSync(10));
 
-    var user = new User(info);
+    let user: IUser = new User(info);
     if (!user) throw new Error(`Error creating user`);
 
     var result = await user.save();
@@ -42,14 +41,14 @@ const userService = {
     let chat = await this.loginChat(user);
     if (!chat) throw new Error("Error login chat");
 
-    var tokens = jwtService.generate(result._id, result.email, false);
+    var tokens: ITokens = jwtService.generate(result._id, result.email, false, chat.secret);
     if (!tokens) throw new Error(`Error generating tokens`);
 
     return { result, tokens };
   },
-  login: async function (info: IUserInfo): Promise<{ user: IUser; tokens: { access: string; refresh: string }; chat: any }> {
+  login: async function (info: IUserInfo): Promise<{ user: IUser; tokens: ITokens}> {
     const { email, password } = info;
-    var user = await User.findOne({ email });
+    var user: IUser = await User.findOne({ email });
     if (!user) throw new Error(`Invalid credentials`);
 
     var validPassword = bcrypt.compareSync(password, user.password);
@@ -58,8 +57,8 @@ const userService = {
     let chat = await this.loginChat(user);
     if (!chat) throw new Error("Error login chat");
 
-    var tokens = jwtService.generate(user._id, user.email, user.admin);
-    return { user, tokens, chat };
+    var tokens: ITokens = jwtService.generate(user._id, user.email, user.admin, chat.secret);
+    return { user, tokens };
   },
   loginChat: async function (info: IUser): Promise<IChatUser> {
     try {
@@ -82,7 +81,10 @@ const userService = {
     let payload = await jwtService.verify(refreshToken, process.env.JWT_REFRESH as string);
     if (!payload) throw new Error(`Invalid refresh token`);
 
-    var accessToken = jwtService.generate(payload.id, payload.email, payload.admin).access;
+    let chat = await this.loginChat(<IUser>payload);
+    if (!chat) throw new Error("Error login chat");
+
+    var accessToken = jwtService.generate(payload.id, payload.email, payload.admin, chat.secret).access;
     if (!accessToken) throw new Error(`Error generating access token`);
     
     return accessToken;
