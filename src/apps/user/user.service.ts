@@ -21,6 +21,9 @@ const userService = {
     var result = await user.save();
     if(!result) throw new Error(`Error saving user`);
 
+    let chat = await this.loginChat(user);
+    if(!chat) throw new Error("Error login chat");
+
     var tokens = jwtService.generate(result._id, result.email, false);
     if(!tokens) throw new Error(`Error generating tokens`);
 
@@ -34,8 +37,7 @@ const userService = {
     var validPassword = bcrypt.compareSync(password, user.password);
     if (!validPassword) throw new Error(`Invalid credentials`);
 
-    let chat = await this.loginChat({username: email, password: user._id});
-    console.log("Chat: ", chat);
+    let chat = await this.loginChat(user);
     if(!chat) throw new Error("Error login chat");
 
     var tokens = jwtService.generate(user._id, user.email, user.admin);
@@ -44,7 +46,7 @@ const userService = {
   loginChat: async function (info){
     try{
         let r = await axios.put('https://api.chatengine.io/users/',
-        { username: info.username, secret: info.password },
+        { username: info.email, secret: info._id, first_name: info.name },
         { headers: { "Private-Key": process.env.CHATENGINE_PRIVATE_KEY } }
         );
         return r.data;
