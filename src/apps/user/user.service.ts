@@ -84,6 +84,7 @@ const userService = {
 
     var accessToken = jwtService.generate(payload.id, payload.email, payload.admin).access;
     if (!accessToken) throw new Error(`Error generating access token`);
+    
     return accessToken;
   },
   createFavor: async function (favorData: IFavor): Promise<IFavor> {
