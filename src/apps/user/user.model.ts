@@ -6,6 +6,7 @@ export interface IUser extends Document {
   password: string;
   phone?: string;
   age?: number;
+  admin: boolean;
   user_reviews_num: number;
   user_reviews_avg: number;
   user_favors: ObjectId[];
@@ -33,6 +34,7 @@ const UserSchema = new Schema<IUser>({
   password: { type: String, required: true },
   phone: String,
   age: Number,
+  admin: {type: Boolean, default: false},
   user_reviews_num: { type: Number, default: 0 },
   user_reviews_avg: { type: Number, default: 0 },
   user_favors: [Schema.Types.ObjectId],
