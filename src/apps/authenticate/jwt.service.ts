@@ -41,7 +41,7 @@ class JwtService {
 
   isAdmin(token: string): JwtPayload | null {
     if (!token) return null;
-    if (!jwt.decode(token)?.admin) return null;
+    if (!jwt.decode(token).admin) return null;
     return jwt.verify(token, process.env.SECRET_ACCESS_KEY as string);
   }
 

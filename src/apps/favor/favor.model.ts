@@ -1,5 +1,4 @@
 import mongoose, { Schema, Document, ObjectId } from 'mongoose';
-
 export interface IFavor extends Document {
   user_published_id: ObjectId;
   user_accepted_id?: ObjectId;

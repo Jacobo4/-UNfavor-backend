@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { RequestWithUser } from '../../requestWithUser';
+import { RequestWithUser } from '../requestWithUser';
 import userService from '../user/user.service';
 import favorService from './favor.service';
 
