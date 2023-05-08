@@ -5,7 +5,7 @@ import { RequestWithUser } from '../requestWithUser';
 const userController = {
   getUser: async function (req: RequestWithUser, res: Response) {
     try {
-      const user = await userService.getUserInfo(req.user._id);
+      const user = await userService.getUserInfo(req.user.id);
       res.status(200).send({
         message: 'User found',
         user: user,

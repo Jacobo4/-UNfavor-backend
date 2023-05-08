@@ -60,6 +60,7 @@ const userService = {
     var tokens: ITokens = jwtService.generate(user._id, user.email, user.admin, chat.secret);
     return { user, tokens };
   },
+
   loginChat: async function (info: IUser): Promise<IChatUser> {
     try {
       let r = await axios.put('https://api.chatengine.io/users/',
@@ -71,6 +72,7 @@ const userService = {
       throw new Error(`Error creating chat user. ${error.name}: ${error.message}`);
     }
   },
+
   logout: async function (): Promise<{ access: string; refresh: string }> {
     return jwtService.logout();
   },
@@ -102,7 +104,6 @@ const userService = {
   updateUserProfileInfo: async function (userId: string, newUserData: Partial<IUser>): Promise<IUser> {
     // Campos permitidos para actualización
     const allowedFields = ['name', 'phone', 'age', 'favor.title', 'favor.description', 'favor.location'];
-
     // Filtrar el objeto newUserData para permitir sólo los campos permitidos
     const filteredUserData = _.pick(newUserData, allowedFields);
     console.log("filteredUserData: ", filteredUserData);
@@ -112,12 +113,10 @@ const userService = {
       { $set: filteredUserData }, // Utilizar el operador $set para actualizar sólo los campos permitidos
       { new: true } // Para obtener el objeto actualizado en la respuesta
     ).select('-password -admin').exec();
-
     // Comprobar si se encontró y actualizó el usuario
     if (!updateUser) {
       throw new Error("Usuario no encontrado"); // Lanza un error si no se encontró el usuario
     }
-
     // Retornar el usuario actualizado
     return updateUser;
   },
