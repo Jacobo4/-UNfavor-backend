@@ -1,24 +1,40 @@
-let mongoose = require("mongoose");
-let Schema = mongoose.Schema;
+import mongoose, { Schema, Document, ObjectId } from 'mongoose';
+export interface IFavor extends Document {
+  user_published_id: ObjectId;
+  user_accepted_id?: ObjectId;
+  date_published?: Date;
+  date_accepted?: Date;
+  date_completed?: Date;
+  favor_state?: string;
+  title?: string;
+  description?: string;
+  category?: string;
+  price?: mongoose.Types.Decimal128;
+  location?: string;
+  chat_id?: ObjectId;
+  reviews?: {
+    score?: number;
+    description?: string;
+  };
+}
 
-var FavorSchema = Schema({
-  user_published_id: mongoose.ObjectId,
-  user_accepted_id: mongoose.ObjectId,
-  date_published: Date,
+const FavorSchema = new Schema<IFavor>({
+  user_published_id: Schema.Types.ObjectId,
+  user_accepted_id: Schema.Types.ObjectId,
+  date_published: { type: Date, default: Date.now },
   date_accepted: Date,
   date_completed: Date,
-  favor_state: String,
-  title: String,
-  description: String,
+  favor_state: { type: String, enum: ['REVIEWING', 'PUBLISHED', 'DENIED'], default: 'REVIEWING' },
+  title: { type: String, required: true },
+  description: { type: String, required: true },
   category: String,
-  price: mongoose.Decimal128,
+  price: Schema.Types.Decimal128,
   location: String,
-  chat_id: mongoose.ObjectId,
+  chat_id: Schema.Types.ObjectId,
   reviews: {
     score: Number,
     description: String
-  }},
-  {collection: "favors"}
-);
+  },
+}, { collection: 'favors' });
 
-export default mongoose.model("Favors", FavorSchema);
+export default mongoose.model<IFavor>('Favors', FavorSchema);
