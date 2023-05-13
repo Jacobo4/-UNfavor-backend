@@ -20,6 +20,9 @@ router.delete("/deleteProfile",validateToken, UserController.deleteUser);
 router.get("/admin", validateAdmin, AdminController.admin);
 router.get("/users", validateAdmin, AdminController.getUsers);
 router.get("/test", validateAdmin, AdminController.test);
-router.get("/controlFavor", validateAdmin, AdminController.controlFavor);
+router.put("/controlFavor", validateAdmin, AdminController.controlFavor);
+router.get("/statistics", validateAdmin, AdminController.statistics);
+
+//router.post("/post", validateToken, UserController.post);
 
 export default router;

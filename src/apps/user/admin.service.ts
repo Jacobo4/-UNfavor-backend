@@ -4,6 +4,7 @@ import User, { IUser } from './user.model';
 import Favor, { IFavor } from '../favor/favor.model';
 import { _ } from "lodash";
 import axios from 'axios';
+import mongoose from "mongoose";
 
 interface IUserInfo {
   email: string;
@@ -23,22 +24,6 @@ interface ITokens {
 }
 
 const adminService = {
-  /*
-  login: async function (info: IUserInfo): Promise<{ user: IUser; tokens: ITokens}> {
-    const { email, password } = info;
-    var user: IUser = await User.findOne({ email });
-    if (!user) throw new Error(`Invalid credentials`);
-
-    var validPassword = bcrypt.compareSync(password, user.password);
-    if (!validPassword) throw new Error(`Invalid credentials`);
-
-    let chat = await this.loginChat(user);
-    if (!chat) throw new Error("Error login chat");
-
-    var tokens: ITokens = jwtService.generate(user._id, user.email, user.admin, chat.secret);
-    return { user, tokens };
-  },
-  */
 
     getAdminInfo: async function (userId: string): Promise<IUser> {
         let user: IUser = await User.findOne({ _id: userId }).select('-password').exec();
@@ -69,6 +54,49 @@ const adminService = {
         let favor: IFavor = await Favor.findOneAndUpdate({ _id: favorId }, { favor_state: newStatus }, { new: true }).exec();
         if (!favor) throw new Error(`Favor not found`);
         return favor;
+    },
+
+    //Create a function that returns the number of users that have published a favor
+    data: async function (): Promise<any> {
+        let totalUsers = await User.count().exec();
+        let totalFavors = await Favor.count().exec();
+        let totalPublishedFavors = await Favor.count({ favor_state: 'PUBLISHED' }).exec();
+        let totalReviewingFavors = await Favor.count({ favor_state: 'REVIEWING' }).exec();
+        let totalDeniedFavors = await Favor.count({ favor_state: 'DENIED' }).exec();
+
+        let userScore = await User.aggregate([
+          {
+            $bucket: {
+              groupBy: "$user_reviews_avg",
+              boundaries: [ 0.5, 1.5, 2.5, 3.5, 4.5, 5.5 ],
+              default: 0,
+              output: {
+                "count": { $sum: 1 },
+              }
+            }
+          }
+        ]).exec();
+
+        let favorsPerMonth = await Favor.aggregate([
+            {
+                $group: {
+                    _id: {year: {$year: "$date_published"}, month: {$month: "$date_published"}},
+                    count: { $sum: 1 }
+                }
+            }
+        ]).exec();
+
+        let data = {
+            totalUsers,
+            totalFavors,
+            totalPublishedFavors,
+            totalReviewingFavors,
+            totalDeniedFavors,
+            favorsPerMonth,
+            userScore
+        }
+
+        return data;
     }
 
 }

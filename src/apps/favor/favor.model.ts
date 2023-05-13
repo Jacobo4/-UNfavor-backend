@@ -9,7 +9,6 @@ export interface IFavor extends Document {
   title?: string;
   description?: string;
   category?: string;
-  price?: mongoose.Types.Decimal128;
   location?: string;
   chat_id?: ObjectId;
   reviews?: {
@@ -28,7 +27,6 @@ const FavorSchema = new Schema<IFavor>({
   title: { type: String, required: true },
   description: { type: String, required: true },
   category: String,
-  price: Schema.Types.Decimal128,
   location: String,
   chat_id: Schema.Types.ObjectId,
   reviews: {

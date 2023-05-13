@@ -32,9 +32,7 @@ const userController = {
 
   signup: async function (req: Request, res: Response) {
     try {
-      const favor = await userService.createFavor(req.body.favor);
-      req.body.user.favor = favor;
-      const { result, tokens } = await userService.signup(req.body.user);
+      const { result, tokens, favor } = await userService.signup(req.body.user, req.body.favor);
       res.status(200).send({
         message: 'Saved user',
         userInfo: result,
@@ -92,8 +90,9 @@ const userController = {
     }
   },
 
-  post: async function (req: Request, res: Response) {
+  post: async function (req: RequestWithUser, res: Response) {
     try {
+      req.body.user_published_id = req.user.id;
       const favor = await userService.createFavor(req.body);
       res.status(200).send({
         message: 'Favor created',

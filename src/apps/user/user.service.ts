@@ -34,15 +34,22 @@ const userService = {
     if (!user) throw new Error(`User not found`);
     return user;
   },
-  signup: async function (info: IUserInfo): Promise<{ result: IUser; tokens: ITokens }> {
-    if (!info.password) throw new Error(`Password is required`);
-    info.password = bcrypt.hashSync(info.password, bcrypt.genSaltSync(10));
+  signup: async function (userInfo: IUserInfo, favorInfo: IFavor): Promise<{ result: IUser; tokens: ITokens; favor: IFavor }> {
+    if (!userInfo.password) throw new Error(`Password is required`);
+    userInfo.password = bcrypt.hashSync(userInfo.password, bcrypt.genSaltSync(10));
 
-    let user: IUser = new User(info);
+    let user: IUser = new User(userInfo);
     if (!user) throw new Error(`Error creating user`);
 
-    var result = await user.save();
+    let result = await user.save();
     if (!result) throw new Error(`Error saving user`);
+
+    favorInfo.user_published_id = result._id;
+    let favor: IFavor = this.createFavor(favorInfo);
+    if (!favor) throw new Error(`Error creating favor`);
+
+    result = await User.findByIdAndUpdate(result._id, { favor }, { new: true }).exec();
+    if (!result) throw new Error(`Error updating user`);
 
     let chat = await this.loginChat(user);
     if (!chat) throw new Error("Error login chat");
@@ -50,7 +57,7 @@ const userService = {
     var tokens: ITokens = jwtService.generate(result._id, result.email, false, chat.secret);
     if (!tokens) throw new Error(`Error generating tokens`);
 
-    return { result, tokens };
+    return { result, tokens, favor };
   },
   login: async function (info: IUserInfo): Promise<{ user: IUser; tokens: ITokens}> {
     const { email, password } = info;

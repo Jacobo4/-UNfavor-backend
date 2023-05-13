@@ -73,6 +73,19 @@ const adminController = {
             console.log('ERROR in controlFavor: ', error.message);
             return res.status(401).send({ message: error.message, error });
         }
+    },
+
+    statistics: async function (req: RequestWithUser, res: Response) {
+        try{
+            const data = await adminService.data();
+            res.status(200).send({
+                message: 'Statistics found',
+                data: data,
+            });
+        } catch (error) {
+            console.log('ERROR in statistics: ', error.message);
+            return res.status(401).send({ message: error.message, error });
+        }
     }
 
 };
