@@ -106,7 +106,7 @@ const userController = {
 
   updateUser: async function (req: RequestWithUser, res: Response) {
     try {
-      const user = await userService.updateUserProfileInfo(req.user._id, req.body.newUserData);
+      const user = await userService.updateUserProfileInfo(req.user.id, req.body.newUserData);
       res.status(200).send({
         message: 'User Updated',
         user: user,
@@ -119,7 +119,7 @@ const userController = {
 
   deleteUser: async function (req: RequestWithUser, res: Response) {
     try {
-      const user = await userService.deleteUser(req.user._id);
+      const user = await userService.deleteUser(req.user.id);
       res.status(200).send({
         message: 'User Deleted',
         user: user,

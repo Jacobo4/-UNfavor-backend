@@ -23,6 +23,24 @@ const favor = {
       favors: favors,
     });
   },
+
+  likeFavor: async (req: RequestWithUser, res: Response) => {
+    const userId = req.user.id;
+    const favorId = req.body.favorId;
+    let result, favor;
+    try {
+      favor = await favorService.userLikeFavor(userId, favorId);
+    } catch (error) {
+      console.log('ERROR in likeFavor: ', error.message);
+      return res.status(401).send({ name: error.name, message: error.message });
+    }
+
+    res.status(200).send({
+      message: 'Favor liked',
+      favor: favor,
+    });
+  }
+
 };
 
 export default favor;
