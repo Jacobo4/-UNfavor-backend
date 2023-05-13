@@ -17,7 +17,7 @@ const verifyToken = function (req: IRequestWithUser, res: Response, next: NextFu
     req.user = { id: verified.id, email: verified.email };
     next();
   } catch (error) {
-    console.log("ERROR: ", error.message);
+    console.log("ERROR in verifyToken: ", error.message);
     res.status(500).send({ message: error.message, error });
   }
 };

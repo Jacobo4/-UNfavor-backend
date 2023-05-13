@@ -11,7 +11,7 @@ const favor = {
       user = await userService.getUserInfo(userId);
       favors = await favorService.getAll();
     } catch (error) {
-      console.log('ERROR: ', error.message);
+      console.log('ERROR in getFavors: ', error.message);
       return res.status(401).send({ message: error.message, error });
     }
     let filters = user.preferences.favor_filters;

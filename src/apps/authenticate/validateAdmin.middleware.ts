@@ -11,11 +11,10 @@ const verifyAdmin = function (req, res, next){
             console.log("No es admin");
             return res.status(500).send({ message: "Unanthorized" });
         }
-        console.log("Es admin");
         req.user = { id: verified.id, email: verified.email };
         next();
     }catch (error) {
-        console.log("ERROR: ", error.message);
+        console.log("ERROR in verifyAdmin: ", error.message);
         res.status(500).send({ message: error.message, error });
     }
 }

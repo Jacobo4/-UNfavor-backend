@@ -28,6 +28,12 @@ const userService = {
     if (!user) throw new Error(`User not found`);
     return user;
   },
+  getProfile: async function (email: string): Promise<IUser> {
+    let allowed = ['favor', 'name', 'email', 'user_reviews_sum', 'user_reviews_avg'];
+    let user = await User.findOne({email}).select(allowed).exec();
+    if (!user) throw new Error(`User not found`);
+    return user;
+  },
   signup: async function (info: IUserInfo): Promise<{ result: IUser; tokens: ITokens }> {
     if (!info.password) throw new Error(`Password is required`);
     info.password = bcrypt.hashSync(info.password, bcrypt.genSaltSync(10));

@@ -11,7 +11,21 @@ const userController = {
         user: user,
       });
     } catch (error) {
-      console.log('ERROR: ', error.message);
+      console.log('ERROR in getUser: ', error.message);
+      return res.status(401).send({ message: error.message, error });
+    }
+  },
+
+  seeProfile: async function (req: Request, res: Response) {
+    try {
+      if(!req.body.query) throw new Error('No query provided');
+      const profile = await userService.getProfile(req.body.query);
+      res.status(200).send({
+          message: 'Profile found',
+          profile: profile,
+      });
+    } catch (error) {
+      console.log('ERROR in seeProfile: ', error.message);
       return res.status(401).send({ message: error.message, error });
     }
   },
@@ -29,7 +43,7 @@ const userController = {
         refresh: tokens.refresh,
       });
     } catch (error) {
-      console.log('ERROR: ', error.message);
+      console.log('ERROR in signup: ', error.message);
       res.status(500).send({ message: error.message, error });
     }
   },
@@ -46,7 +60,7 @@ const userController = {
         refresh: tokens.refresh,
       });
     } catch (error) {
-      console.log('ERROR: ', error.message);
+      console.log('ERRORin login: ', error.message);
       return res.status(401).send({ message: error.message, error });
     }
   },
@@ -60,7 +74,7 @@ const userController = {
         refresh: tokens.refresh,
       });
     } catch (error) {
-      console.log('ERROR: ', error.message);
+      console.log('ERROR in logout: ', error.message);
       return res.status(401).send({ message: error.message, error });
     }
   },
@@ -73,16 +87,9 @@ const userController = {
         access: accessToken,
       });
     } catch (error) {
-      console.log('ERROR: ', error.message);
+      console.log('ERROR in refresh: ', error.message);
       return res.status(401).send({ message: error.message, error });
     }
-  },
-
-  admin: async function (req: RequestWithUser, res: Response) {
-    res.status(200).send({
-      message: "I'm authenticated. This is a protected route",
-      user: req.user,
-    });
   },
 
   post: async function (req: Request, res: Response) {
@@ -93,7 +100,7 @@ const userController = {
         favor: favor,
       });
     } catch (error) {
-      console.log('ERROR: ', error.message);
+      console.log('ERROR in post: ', error.message);
       return res.status(401).send({ message: error.message, error });
     }
   },
@@ -106,7 +113,7 @@ const userController = {
         user: user,
       });
     } catch (error) {
-      console.log('ERROR: ', error.message);
+      console.log('ERROR in updateUser: ', error.message);
       return res.status(401).send({ message: error.message, error });
     }
   },
@@ -119,7 +126,7 @@ const userController = {
         user: user,
       });
     } catch (error) {
-      console.log('ERROR: ', error.message);
+      console.log('ERROR in deleteUser: ', error.message);
       return res.status(401).send({ message: error.message, error });
     }
   },
