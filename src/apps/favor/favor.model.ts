@@ -11,6 +11,7 @@ export interface IFavor extends Document {
   category?: string;
   location?: string;
   chat_id?: ObjectId;
+  possible_matches?: ObjectId[];
   reviews?: {
     score?: number;
     description?: string;
@@ -29,6 +30,7 @@ const FavorSchema = new Schema<IFavor>({
   category: String,
   location: String,
   chat_id: Schema.Types.ObjectId,
+  possible_matches: [Schema.Types.ObjectId],
   reviews: {
     score: Number,
     description: String
