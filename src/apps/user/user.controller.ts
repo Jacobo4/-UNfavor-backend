@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import userService from './user.service';
-import { RequestWithUser } from '../requestWithUser';
+import { RequestWithUser } from '../typescriptCrap/requestWithUser';
 
 const userController = {
   getUser: async function (req: RequestWithUser, res: Response) {

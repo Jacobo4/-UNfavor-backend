@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import adminService from './admin.service';
-import { RequestWithUser } from '../requestWithUser';
+import { RequestWithUser } from '../typescriptCrap/requestWithUser';
 
 const adminController = {
   /*
