@@ -45,21 +45,21 @@ const userService = {
     if (!result) throw new Error(`Error saving user`);
 
     favorInfo.user_published_id = result._id;
-    let favor: IFavor = this.createFavor(favorInfo);
+    let favor: IFavor = await this.createFavor(favorInfo);
     if (!favor) throw new Error(`Error creating favor`);
 
     result = await User.findByIdAndUpdate(result._id, { favor }, { new: true }).exec();
     if (!result) throw new Error(`Error updating user`);
 
     let chat = await this.loginChat(user);
-    if (!chat) throw new Error("Error login chat");
+    if (!chat) throw new Error("Error login match");
 
     var tokens: ITokens = jwtService.generate(result._id, result.email, false, chat.secret);
     if (!tokens) throw new Error(`Error generating tokens`);
 
     return { result, tokens, favor };
   },
-  login: async function (info: IUserInfo): Promise<{ user: IUser; tokens: ITokens}> {
+  login: async function (info: IUserInfo): Promise<{ user: IUser; tokens: ITokens, favor: string}> {
     const { email, password } = info;
     var user: IUser = await User.findOne({ email });
     if (!user) throw new Error(`Invalid credentials`);
@@ -68,10 +68,13 @@ const userService = {
     if (!validPassword) throw new Error(`Invalid credentials`);
 
     let chat = await this.loginChat(user);
-    if (!chat) throw new Error("Error login chat");
+    if (!chat) throw new Error("Error login match");
+
+    let favor = await Favor.findOne({user_published_id: user._id}).exec();
+    if (!favor) throw new Error(`Error finding favor`);
 
     var tokens: ITokens = jwtService.generate(user._id, user.email, user.admin, chat.secret);
-    return { user, tokens };
+    return { user, tokens,  favor: favor.favor_state};
   },
 
   loginChat: async function (info: IUser): Promise<IChatUser> {
@@ -97,7 +100,7 @@ const userService = {
     if (!payload) throw new Error(`Invalid refresh token`);
 
     let chat = await this.loginChat(<IUser>payload);
-    if (!chat) throw new Error("Error login chat");
+    if (!chat) throw new Error("Error login match");
 
     var accessToken = jwtService.generate(payload.id, payload.email, payload.admin, chat.secret).access;
     if (!accessToken) throw new Error(`Error generating access token`);
@@ -120,16 +123,30 @@ const userService = {
     // Filtrar el objeto newUserData para permitir sólo los campos permitidos
     const filteredUserData = _.pick(newUserData, allowedFields);
     console.log("filteredUserData: ", filteredUserData);
+
+    const favor: IFavor = await Favor.findOne({user_published_id: userId}).exec();
+    if(!favor) throw new Error("Favor no encontrado");
+
+    const updateFavor = await Favor.findByIdAndUpdate(
+        favor._id,
+        // Utilizar el operador $set para actualizar sólo los campos permitidos
+        { $set: {title: filteredUserData.favor.title,
+                        description: filteredUserData.favor.description,
+                        location: filteredUserData.favor.location} },
+        { new: true } // Para obtener el objeto actualizado en la respuesta
+    ).exec();
+    if(!updateFavor) throw new Error("Favor no actualizado");
+
+    console.log("updateFavor: ", updateFavor);
+
     // Buscar y actualizar el usuario en la base de datos, newUserData es un objeto con los elementos a actualizar.
-    const updateUser = await User.findByIdAndUpdate(
+    const updateUser: IUser = await User.findByIdAndUpdate(
       userId,
       { $set: filteredUserData }, // Utilizar el operador $set para actualizar sólo los campos permitidos
       { new: true } // Para obtener el objeto actualizado en la respuesta
     ).select('-password -admin').exec();
     // Comprobar si se encontró y actualizó el usuario
-    if (!updateUser) {
-      throw new Error("Usuario no encontrado"); // Lanza un error si no se encontró el usuario
-    }
+    if (!updateUser) throw new Error("Usuario no encontrado"); // Lanza un error si no se encontró el usuario
     // Retornar el usuario actualizado
     return updateUser;
   },

@@ -3,11 +3,13 @@ import express from 'express';
 // import favorFilters from './favorFilters.controller';
 import favor from './favor.controller';
 import validateAdmin from '../authenticate/validateAdmin.middleware';
+import validateToken from "../authenticate/validateToken.middleware";
 
 const router = express.Router();
 
 // router.post("/changeFavorFilters", validateToken, favorFilters.changeFavorFilters);
 // router.get("/favorFilters", validateToken, favorFilters.getFavorFilters);
-router.get("/favors", validateAdmin, favor.getFavors);
+router.get("/favors", validateToken, favor.getFavors);
+router.put("/likeFavor", validateToken,  favor.likeFavor);
 
 export default router;
