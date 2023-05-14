@@ -28,7 +28,7 @@ const favorService = {
     const result = await favorB.save();
     if (!result) throw new Error(`Error saving favor`);
 
-    let match = await favorService.lookForMatch(userAId, favorB.user_published_id);
+    let match = await favorService.lookForMatch(userAId, favorB);
     if(!match){
       if(match==null) console.log("Match is null");
       else throw new Error(`Error getting match`);
@@ -37,18 +37,18 @@ const favorService = {
     return result;
   },
 
-  lookForMatch: async (userAId: ObjectId, userBId: ObjectId): null | Promise<IMatch> => {
+  lookForMatch: async (userAId: ObjectId, favorB: IFavor): null | Promise<IMatch> => {
     if(!userAId) throw new Error(`Error getting userAId`);
-    if(!userBId) throw new Error(`Error getting userBId`);
-    let favorA = await favorService.getFavor(userAId);
+    if(!favorB) throw new Error(`Error getting userBId`);
+    let favorA: IFavor = await favorService.getFavor(userAId);
     if (!favorA) throw new Error(`Error getting favorA`);
 
-    if(!favorA.possible_matches.includes(userBId)) {
+    if(!favorA.possible_matches.includes(favorB.user_published_id)) {
       console.log(`User doesn't match :(`);
       return null;
     }
 
-    return await matchService.createMatch(userAId, userBId);
+    return await matchService.createMatch(favorA, favorB);
   }
 
 };
