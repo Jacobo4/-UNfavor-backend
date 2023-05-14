@@ -59,7 +59,7 @@ const userService = {
 
     return { result, tokens, favor };
   },
-  login: async function (info: IUserInfo): Promise<{ user: IUser; tokens: ITokens}> {
+  login: async function (info: IUserInfo): Promise<{ user: IUser; tokens: ITokens, favor: string}> {
     const { email, password } = info;
     var user: IUser = await User.findOne({ email });
     if (!user) throw new Error(`Invalid credentials`);
@@ -70,8 +70,11 @@ const userService = {
     let chat = await this.loginChat(user);
     if (!chat) throw new Error("Error login match");
 
+    let favor = await Favor.findOne({user_published_id: user._id}).exec();
+    if (!favor) throw new Error(`Error finding favor`);
+
     var tokens: ITokens = jwtService.generate(user._id, user.email, user.admin, chat.secret);
-    return { user, tokens };
+    return { user, tokens,  favor: favor.favor_state};
   },
 
   loginChat: async function (info: IUser): Promise<IChatUser> {

@@ -48,14 +48,16 @@ const userController = {
 
   login: async function (req: Request, res: Response) {
     try {
-      const { user, tokens } = await userService.login(req.body);
+      const { user, tokens, favor } = await userService.login(req.body);
       if (!user) return res.status(401).send({ message: 'Invalid credentials' });
       if (!tokens) return res.status(500).send({ message: 'Error generating tokens' });
+      if(favor == undefined) return res.status(500).send({ message: 'Error getting favor' });
 
       res.status(200).send({
         message: 'Logged in',
         access: tokens.access,
         refresh: tokens.refresh,
+        favor,
       });
     } catch (error) {
       console.log('ERRORin login: ', error.message);

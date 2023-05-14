@@ -9,7 +9,7 @@ const router = express.Router();
 
 // router.post("/changeFavorFilters", validateToken, favorFilters.changeFavorFilters);
 // router.get("/favorFilters", validateToken, favorFilters.getFavorFilters);
-router.get("/favors", validateAdmin, favor.getFavors);
+router.get("/favors", validateToken, favor.getFavors);
 router.put("/likeFavor", validateToken,  favor.likeFavor);
 
 export default router;
