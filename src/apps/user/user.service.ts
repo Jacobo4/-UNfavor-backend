@@ -1,79 +1,65 @@
 import bcrypt from 'bcrypt';
 import jwtService from '../authenticate/jwt.service';
-import User, { IUser } from './user.model';
-import Favor, { IFavor } from '../favor/favor.model';
+import User, { IUser, IFavor } from './user.model';
 import { _ } from "lodash";
 import axios from 'axios';
-
-interface IUserInfo {
-  email: string;
-  password: string;
-  [key: string]: any;
-}
-
-interface IChatUser {
-  username: string;
-  secret: string;
-  first_name: string;
-}
-
-interface ITokens {
-    access: string;
-    refresh: string;
-}
+import {IUserInfo, IChatUser, ITokens} from '../typescriptCrap/userTypes';
+import { ObjectId } from 'mongoose';
 
 const userService = {
-  getUserInfo: async function (userId: string): Promise<IUser> {
-    let user = await User.findById(userId).select('-password').exec();
+  getUserInfo: async function (userId: ObjectId): Promise<IUser> {
+    let user: IUser = await User.findById(userId).select('-password').exec();
+
     if (!user) throw new Error(`User not found`);
     return user;
   },
+
   getProfile: async function (email: string): Promise<IUser> {
     let allowed = ['favor', 'name', 'email', 'user_reviews_sum', 'user_reviews_avg'];
-    let user = await User.findOne({email}).select(allowed).exec();
+    let user: IUser = await User.findOne({email}).select(allowed).exec();
+
     if (!user) throw new Error(`User not found`);
     return user;
   },
-  signup: async function (userInfo: IUserInfo, favorInfo: IFavor): Promise<{ result: IUser; tokens: ITokens; favor: IFavor }> {
+
+  signup: async function (userInfo: IUserInfo, favorInfo: IFavor): Promise<{ result: IUser; tokens: ITokens; favor: IFavor}> {
     if (!userInfo.password) throw new Error(`Password is required`);
     userInfo.password = bcrypt.hashSync(userInfo.password, bcrypt.genSaltSync(10));
+
+    userInfo.favor = favorInfo;
 
     let user: IUser = new User(userInfo);
     if (!user) throw new Error(`Error creating user`);
 
-    let result = await user.save();
+    let result: IUser = await user.save();
     if (!result) throw new Error(`Error saving user`);
 
-    favorInfo.user_published_id = result._id;
-    let favor: IFavor = await this.createFavor(favorInfo);
-    if (!favor) throw new Error(`Error creating favor`);
-
-    result = await User.findByIdAndUpdate(result._id, { favor }, { new: true }).exec();
-    if (!result) throw new Error(`Error updating user`);
-
-    let chat = await this.loginChat(user);
+    let chat: IChatUser = await this.loginChat(user);
     if (!chat) throw new Error("Error login match");
 
-    var tokens: ITokens = jwtService.generate(result._id, result.email, false, chat.secret);
+    let tokens: ITokens = jwtService.generate(result._id, result.email, false, chat.secret);
     if (!tokens) throw new Error(`Error generating tokens`);
 
-    return { result, tokens, favor };
+    return { result, tokens, favor: result.favor };
   },
+
   login: async function (info: IUserInfo): Promise<{ user: IUser; tokens: ITokens, favor: string}> {
     const { email, password } = info;
-    var user: IUser = await User.findOne({ email });
+
+    let user: IUser = await User.findOne({ email });
     if (!user) throw new Error(`Invalid credentials`);
 
-    var validPassword = bcrypt.compareSync(password, user.password);
+    let validPassword = bcrypt.compareSync(password, user.password);
     if (!validPassword) throw new Error(`Invalid credentials`);
 
     let chat = await this.loginChat(user);
     if (!chat) throw new Error("Error login match");
 
-    let favor = await Favor.findOne({user_published_id: user._id}).exec();
+    let favor: IFavor = user.favor;
     if (!favor) throw new Error(`Error finding favor`);
 
-    var tokens: ITokens = jwtService.generate(user._id, user.email, user.admin, chat.secret);
+    let tokens: ITokens = jwtService.generate(user._id, user.email, user.admin, chat.secret);
+
     return { user, tokens,  favor: favor.favor_state};
   },
 
@@ -89,9 +75,10 @@ const userService = {
     }
   },
 
-  logout: async function (): Promise<{ access: string; refresh: string }> {
+  logout: async function (): Promise<ITokens> {
     return jwtService.logout();
   },
+
   refresh: async function (info: { body: { refreshtoken: string } }): Promise<string> {
     var refreshToken = info.body.refreshtoken;
     if (!refreshToken) throw new Error(`Refresh token is required`);
@@ -107,37 +94,13 @@ const userService = {
     
     return accessToken;
   },
-  createFavor: async function (favorData: IFavor): Promise<IFavor> {
-    let favor = new Favor(favorData);
-    console.log("FAVOR: ", favor);
-    if (!favor) throw new Error(`Error creating favor`);
 
-    let result = await favor.save();
-    if (!result) throw new Error(`Error saving favor`);
-
-    return result;
-  },
-  updateUserProfileInfo: async function (userId: string, newUserData: Partial<IUser>): Promise<IUser> {
+  updateUserProfileInfo: async function (userId: ObjectId, newUserData: Partial<IUser>): Promise<IUser> {
     // Campos permitidos para actualización
     const allowedFields = ['name', 'phone', 'age', 'favor.title', 'favor.description', 'favor.location'];
     // Filtrar el objeto newUserData para permitir sólo los campos permitidos
     const filteredUserData = _.pick(newUserData, allowedFields);
     console.log("filteredUserData: ", filteredUserData);
-
-    const favor: IFavor = await Favor.findOne({user_published_id: userId}).exec();
-    if(!favor) throw new Error("Favor no encontrado");
-
-    const updateFavor = await Favor.findByIdAndUpdate(
-        favor._id,
-        // Utilizar el operador $set para actualizar sólo los campos permitidos
-        { $set: {title: filteredUserData.favor.title,
-                        description: filteredUserData.favor.description,
-                        location: filteredUserData.favor.location} },
-        { new: true } // Para obtener el objeto actualizado en la respuesta
-    ).exec();
-    if(!updateFavor) throw new Error("Favor no actualizado");
-
-    console.log("updateFavor: ", updateFavor);
 
     // Buscar y actualizar el usuario en la base de datos, newUserData es un objeto con los elementos a actualizar.
     const updateUser: IUser = await User.findByIdAndUpdate(
@@ -145,16 +108,18 @@ const userService = {
       { $set: filteredUserData }, // Utilizar el operador $set para actualizar sólo los campos permitidos
       { new: true } // Para obtener el objeto actualizado en la respuesta
     ).select('-password -admin').exec();
+
     // Comprobar si se encontró y actualizó el usuario
     if (!updateUser) throw new Error("Usuario no encontrado"); // Lanza un error si no se encontró el usuario
+
     // Retornar el usuario actualizado
     return updateUser;
   },
-  deleteUser: async function (userId: string): Promise<IUser> {
-    const deletedUser = await User.findByIdAndRemove(userId);
-    if (!deletedUser) {
-      throw new Error("Usuario not found"); // Lanza un error si no se encontró el usuario
-    }
+
+  deleteUser: async function (userId: ObjectId): Promise<IUser> {
+    const deletedUser: IUser = await User.findByIdAndRemove(userId);
+    if (!deletedUser) throw new Error("Usuario not found"); // Lanza un error si no se encontró el usuario
+
     return deletedUser;
   }
 }

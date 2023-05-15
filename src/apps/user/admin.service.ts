@@ -1,32 +1,10 @@
-import bcrypt from 'bcrypt';
-import jwtService from '../authenticate/jwt.service';
-import User, { IUser } from './user.model';
-import Favor, { IFavor } from '../favor/favor.model';
-import { _ } from "lodash";
-import axios from 'axios';
-import mongoose from "mongoose";
-
-interface IUserInfo {
-  email: string;
-  password: string;
-  [key: string]: any;
-}
-
-interface IChatUser {
-  username: string;
-  secret: string;
-  first_name: string;
-}
-
-interface ITokens {
-    access: string;
-    refresh: string;
-}
+import User, { IUser, IFavor } from './user.model';
+import { ObjectId } from "mongoose"
 
 const adminService = {
 
     getAdminInfo: async function (userId: string): Promise<IUser> {
-        let user: IUser = await User.findOne({ _id: userId }).select('-password').exec();
+        let user: IUser = await User.findById(userId).select('-password').exec();
         if (!user) throw new Error(`User not found`);
         return user;
     },
@@ -37,37 +15,26 @@ const adminService = {
         return users;
     },
 
-    test: async function (): Promise<any> {
-        let data = await User.aggregate([
-            {
-                $group: {
-                    _id: "$name",
-                    count: { $sum: 1 }
-                }
-            }
-        ]).exec();
-        return data;
-    },
-
-    modifyFavor: async function (favorId: string, newStatus: string): Promise<IFavor> {
+    modifyFavor: async function (userId: ObjectId, newStatus: string): Promise<IFavor> {
         if (!['REVIEWING', 'PUBLISHED', 'DENIED'].includes(newStatus)) throw new Error(`Status not accepted`);
-        let favor: IFavor = await Favor.findOneAndUpdate({ _id: favorId }, { favor_state: newStatus }, { new: true }).exec();
-        if (!favor) throw new Error(`Favor not found`);
-        return favor;
+
+        const user: IUser = await User.findByIdAndUpdate(userId, { "$set": {"favor.favor_state": newStatus} }, { new: true }).exec();
+        if (!user) throw new Error(`User favor not found`);
+
+        return user.favor;
     },
 
     //Create a function that returns the number of users that have published a favor
     data: async function (): Promise<any> {
         let totalUsers = await User.count().exec();
-        let totalFavors = await Favor.count().exec();
-        let totalPublishedFavors = await Favor.count({ favor_state: 'PUBLISHED' }).exec();
-        let totalReviewingFavors = await Favor.count({ favor_state: 'REVIEWING' }).exec();
-        let totalDeniedFavors = await Favor.count({ favor_state: 'DENIED' }).exec();
+        let totalPublishedFavors = await User.count({ "favor.favor_state": 'PUBLISHED' }).exec();
+        let totalReviewingFavors = await User.count({ "favor.favor_state": 'REVIEWING' }).exec();
+        let totalDeniedFavors = await User.count({ "favor.favor_state": 'DENIED' }).exec();
 
-        let userScore = await User.aggregate([
+        let userScore: any = await User.aggregate([
           {
             $bucket: {
-              groupBy: "$user_reviews_avg",
+              groupBy: {"$divide": ["$favor.reviews.review_sum", "$favor.reviews.review_num"]},
               boundaries: [ 0.5, 1.5, 2.5, 3.5, 4.5, 5.5 ],
               default: 0,
               output: {
@@ -77,10 +44,10 @@ const adminService = {
           }
         ]).exec();
 
-        let favorsPerMonth = await Favor.aggregate([
+        let favorsPerMonth: any = await User.aggregate([
             {
                 $group: {
-                    _id: {year: {$year: "$date_published"}, month: {$month: "$date_published"}},
+                    _id: {year: {$year: "$favor.date_published"}, month: {$month: "$favor.date_published"}},
                     count: { $sum: 1 }
                 }
             }
@@ -88,7 +55,6 @@ const adminService = {
 
         let data = {
             totalUsers,
-            totalFavors,
             totalPublishedFavors,
             totalReviewingFavors,
             totalDeniedFavors,
