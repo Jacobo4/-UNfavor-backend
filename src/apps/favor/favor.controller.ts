@@ -7,7 +7,7 @@ import favorService from './favor.service';
 
 const favor = {
   getFavors: async (req: RequestWithUser, res: Response) => {
-    const userId = req.user._id;
+    const userId = req.user.id;
     let user: IUser, favors: IFavor[];
     try {
       user = await userService.getUserInfo(userId);

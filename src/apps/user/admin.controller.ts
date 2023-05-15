@@ -32,7 +32,7 @@ const adminController = {
 
     controlFavor: async function (req: RequestWithUser, res: Response) {
         try{
-            const data = await adminService.modifyFavor(req.body.favorId, req.body.action);
+            const data = await adminService.modifyFavor(req.body.userId, req.body.action);
             res.status(200).send({
                 message: 'Favor modified',
                 data: data,

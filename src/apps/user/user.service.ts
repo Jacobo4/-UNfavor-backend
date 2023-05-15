@@ -31,6 +31,8 @@ const userService = {
     let user: IUser = new User(userInfo);
     if (!user) throw new Error(`Error creating user`);
 
+    console.log("user: ", user);
+
     let result: IUser = await user.save();
     if (!result) throw new Error(`Error saving user`);
 
