@@ -1,11 +1,13 @@
 import { Request, Response } from 'express';
 import userService from './user.service';
 import { RequestWithUser } from '../typescriptCrap/requestWithUser';
+import { IUser, IFavor } from './user.model';
+import { ITokens } from '../typescriptCrap/userTypes';
 
 const userController = {
   getUser: async function (req: RequestWithUser, res: Response) {
     try {
-      const user = await userService.getUserInfo(req.user.id);
+      const user: IUser = await userService.getUserInfo(req.user.id);
       res.status(200).send({
         message: 'User found',
         user: user,
@@ -19,7 +21,7 @@ const userController = {
   seeProfile: async function (req: Request, res: Response) {
     try {
       if(!req.body.query) throw new Error('No query provided');
-      const profile = await userService.getProfile(req.body.query);
+      const profile: IUser = await userService.getProfile(req.body.query);
       res.status(200).send({
           message: 'Profile found',
           profile: profile,
@@ -32,7 +34,11 @@ const userController = {
 
   signup: async function (req: Request, res: Response) {
     try {
-      const { result, tokens, favor } = await userService.signup(req.body.user, req.body.favor);
+      const aux: any = await userService.signup(req.body.user, req.body.favor);
+      let result: IUser = aux.result;
+      let tokens: ITokens = aux.tokens;
+      let favor: IFavor = aux.favor;
+
       res.status(200).send({
         message: 'Saved user',
         userInfo: result,
@@ -48,7 +54,11 @@ const userController = {
 
   login: async function (req: Request, res: Response) {
     try {
-      const { user, tokens, favor } = await userService.login(req.body);
+      const aux: any = await userService.login(req.body);
+      let user: IUser = aux.user;
+      let tokens: ITokens = aux.tokens;
+      let favor: IFavor = aux.favor;
+
       if (!user) return res.status(401).send({ message: 'Invalid credentials' });
       if (!tokens) return res.status(500).send({ message: 'Error generating tokens' });
       if(favor == undefined) return res.status(500).send({ message: 'Error getting favor' });
@@ -65,9 +75,9 @@ const userController = {
     }
   },
 
-  logout: async function (req: Request, res: Response) {
+  logout: async function (_: Request, res: Response) {
     try {
-      const tokens = await userService.logout();
+      const tokens: ITokens = await userService.logout();
       res.status(200).send({
         message: 'Logged out',
         access: tokens.access,
@@ -81,7 +91,7 @@ const userController = {
 
   refresh: async function (req: Request, res: Response) {
     try {
-      const accessToken = await userService.refresh(req);
+      const accessToken: string = await userService.refresh(req);
       res.header({ accesstoken: accessToken }).status(200).send({
         message: 'Access token refreshed',
         access: accessToken,
@@ -92,23 +102,9 @@ const userController = {
     }
   },
 
-  post: async function (req: RequestWithUser, res: Response) {
-    try {
-      req.body.user_published_id = req.user.id;
-      const favor = await userService.createFavor(req.body);
-      res.status(200).send({
-        message: 'Favor created',
-        favor: favor,
-      });
-    } catch (error) {
-      console.log('ERROR in post: ', error.message);
-      return res.status(401).send({ message: error.message, error });
-    }
-  },
-
   updateUser: async function (req: RequestWithUser, res: Response) {
     try {
-      const user = await userService.updateUserProfileInfo(req.user.id, req.body.newUserData);
+      const user: IUser = await userService.updateUserProfileInfo(req.user.id, req.body.newUserData);
       res.status(200).send({
         message: 'User Updated',
         user: user,
@@ -121,7 +117,7 @@ const userController = {
 
   deleteUser: async function (req: RequestWithUser, res: Response) {
     try {
-      const user = await userService.deleteUser(req.user.id);
+      const user: IUser = await userService.deleteUser(req.user.id);
       res.status(200).send({
         message: 'User Deleted',
         user: user,

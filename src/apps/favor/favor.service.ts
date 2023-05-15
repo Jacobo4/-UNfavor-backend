@@ -1,5 +1,5 @@
-import Favor from './favor.model';
-import { IFavor } from './favor.model';
+import User from '../user/user.model';
+import {IUser, IFavor} from '../user/user.model';
 import {ObjectId} from "mongoose";
 import matchService from "../match/match.service";
 import {IMatch} from "../match/match.model";
@@ -7,48 +7,64 @@ import {IMatch} from "../match/match.model";
 const favorService = {
 
   getFavor: async (userId: ObjectId): null | Promise<IFavor> => {
-    const favor: IFavor = await Favor.findOne({ user_published_id: userId }).exec();
-    if (!favor) return null;
-    return favor;
+    const user: IUser = await User.findById(userId).exec();
+    if (!user) return null;
+    return user.favor;
   },
 
   getAll: async (): Promise<IFavor[]> => {
-    const favors = await Favor.find().exec();
-    if (!favors) throw new Error(`Error getting favors`);
+    const users: IUser[] = await User.find().exec();
+    if (!users) throw new Error(`Error getting favors`);
+    let favors: IFavor[] = []
+    for(let i = 0; i < users.length; i++){
+      favors.push(users[i].favor)
+    }
     return favors;
   },
 
-  userLikeFavor: async (userAId: ObjectId, favorBId: ObjectId): Promise<IFavor> => {
+  userLikeFavor: async (userAId: ObjectId, userBId: ObjectId): Promise<IFavor> => {
     if(!userAId) throw new Error(`Error getting userAId`);
-    if(!favorBId) throw new Error(`Error getting favorBId`);
-    const favorB: IFavor = await Favor.findById(favorBId).exec();
-    if (!favorB) throw new Error(`Error getting favorB`);
-    if (favorB.user_published_id == userAId) throw new Error(`User can't like his own favor`);
-    if(!favorB.possible_matches.includes(userAId)) favorB.possible_matches.push(userAId);
-    const result = await favorB.save();
-    if (!result) throw new Error(`Error saving favor`);
+    if(!userBId) throw new Error(`Error getting userBId`);
+    if(userAId == userBId) throw new Error('Can\'t like your own favor');
 
-    let match = await favorService.lookForMatch(userAId, favorB);
+    let userB: IUser = await User.findById(userBId).exec();
+
+    if (!userB) throw new Error(`Error getting userB`);
+    if(!userB.favor.possible_matches.includes(userAId)){
+      userB.favor.possible_matches.push(userAId);
+      const result: IUser = await userB.save();
+
+      if (!result) throw new Error(`Error saving favor`);
+
+      userB = result;
+    }
+
+    let match = await favorService.lookForMatch(userAId, userBId);
+
     if(!match){
       if(match==null) console.log("Match is null");
       else throw new Error(`Error getting match`);
     }
 
-    return result;
+    return userB.favor;
   },
 
-  lookForMatch: async (userAId: ObjectId, favorB: IFavor): null | Promise<IMatch> => {
+  lookForMatch: async (userAId: ObjectId, userBId: ObjectId): null | Promise<IMatch> => {
     if(!userAId) throw new Error(`Error getting userAId`);
-    if(!favorB) throw new Error(`Error getting userBId`);
-    let favorA: IFavor = await favorService.getFavor(userAId);
-    if (!favorA) throw new Error(`Error getting favorA`);
+    if(!userBId) throw new Error(`Error getting userBId`);
 
-    if(!favorA.possible_matches.includes(favorB.user_published_id)) {
+    let userA: IUser = await User.findById(userAId).exec();
+    let userB: IUser = await User.findById(userBId).exec();
+
+    if (!userA) throw new Error(`Error getting userA`);
+    if (!userB) throw new Error(`Error getting userB`);
+
+    if(!userA.favor.possible_matches.includes(userB._id)) {
       console.log(`User doesn't match :(`);
       return null;
     }
 
-    return await matchService.createMatch(favorA, favorB);
+    return await matchService.createMatch(userA, userB);
   }
 
 };

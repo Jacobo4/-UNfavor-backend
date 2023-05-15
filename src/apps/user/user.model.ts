@@ -1,5 +1,20 @@
 import mongoose, { Schema, Document, ObjectId } from 'mongoose';
 
+export interface IFavor {
+  date_published?: Date;
+  favor_state?: string;
+  title?: string;
+  description?: string;
+  category?: string;
+  location?: string;
+  possible_matches?: ObjectId[];
+  reviews?: {
+    review_sum?: number;
+    review_num?: number;
+    comments?: string[];
+  };
+}
+
 export interface IUser extends Document {
   name: string;
   email: string;
@@ -7,19 +22,7 @@ export interface IUser extends Document {
   phone?: string;
   age?: number;
   admin: boolean;
-  user_reviews_num: number;
-  user_reviews_avg: number;
-  user_favors: ObjectId[];
-  favor: {
-    user_published_id: ObjectId;
-    date_published?: Date;
-    title?: string;
-    description?: string;
-    category?: string;
-    location?: string;
-    chat_id?: ObjectId;
-    rank: number;
-  };
+  favor: IFavor;
   preferences: {
     favor_filters: {
       favor_type: string;
@@ -35,18 +38,19 @@ const UserSchema = new Schema<IUser>({
   phone: String,
   age: Number,
   admin: {type: Boolean, default: false},
-  user_reviews_num: { type: Number, default: 0 },
-  user_reviews_avg: { type: Number, default: 0 },
-  user_favors: [Schema.Types.ObjectId],
   favor: {
-    user_published_id: Schema.Types.ObjectId,
-    date_published: Date,
-    title: String,
-    description: String,
+    date_published: { type: Date, default: Date.now },
+    favor_state: { type: String, enum: ['REVIEWING', 'PUBLISHED', 'DENIED'], default: 'REVIEWING' },
+    title: { type: String, required: true },
+    description: { type: String, required: true },
     category: String,
     location: String,
-    chat_id: Schema.Types.ObjectId,
-    rank: { type: Number, default: 0 },
+    possible_matches: [Schema.Types.ObjectId],
+    reviews: {
+      review_sum: Number,
+      review_num: Number,
+      comments: [String]
+    },
   },
   preferences: {
     favor_filters: {

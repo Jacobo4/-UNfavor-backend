@@ -1,12 +1,14 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { ObjectId } from 'mongoose';
 import { RequestWithUser } from '../typescriptCrap/requestWithUser';
+import { IFavor, IUser } from '../user/user.model';
 import userService from '../user/user.service';
 import favorService from './favor.service';
 
 const favor = {
   getFavors: async (req: RequestWithUser, res: Response) => {
-    const userId = req.user.id;
-    let user, favors;
+    const userId = req.user._id;
+    let user: IUser, favors: IFavor[];
     try {
       user = await userService.getUserInfo(userId);
       favors = await favorService.getAll();
@@ -25,11 +27,11 @@ const favor = {
   },
 
   likeFavor: async (req: RequestWithUser, res: Response) => {
-    const userId = req.user.id;
-    const favorId = req.body.favorId;
-    let result, favor;
+    const userAId: ObjectId = req.user.id;
+    const userBId: ObjectId = req.body.userId;
+    let favor: IFavor;
     try {
-      favor = await favorService.userLikeFavor(userId, favorId);
+      favor = await favorService.userLikeFavor(userAId, userBId);
     } catch (error) {
       console.log('ERROR in likeFavor: ', error.message);
       return res.status(401).send({ name: error.name, message: error.message });
