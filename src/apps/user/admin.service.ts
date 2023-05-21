@@ -1,13 +1,9 @@
 import User, { IUser, IFavor } from './user.model';
-import { ObjectId } from "mongoose"
+import { ObjectId } from "mongoose";
+import UserReport, { IUserReport } from './userReport.model';
+
 
 const adminService = {
-
-    getAdminInfo: async function (userId: string): Promise<IUser> {
-        let user: IUser = await User.findById(userId).select('-password').exec();
-        if (!user) throw new Error(`User not found`);
-        return user;
-    },
 
     allUsers: async function (): Promise<IUser[]> {
         let users: IUser[] = await User.find().select('-password').exec();
@@ -63,7 +59,12 @@ const adminService = {
         }
 
         return data;
-    }
+    },
+    getAllReports: async function (): Promise<IUserReport[]> {
+        let reports: IUserReport[] = await UserReport.find().exec();
+        if (!reports) throw new Error(`Reports not found`);
+        return reports;
+    },
 
 }
 

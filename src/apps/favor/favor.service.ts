@@ -13,7 +13,7 @@ const favorService = {
   },
 
   getAll: async (): Promise<IFavor[]> => {
-    const users: IUser[] = await User.find().exec();
+    const users: IUser[] = await User.find({"favor.favor_state": "PUBLISHED"}).exec();
     if (!users) throw new Error(`Error getting favors`);
     let favors: IFavor[] = []
     for(let i = 0; i < users.length; i++){
