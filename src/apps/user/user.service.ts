@@ -128,11 +128,12 @@ const userService = {
   },
   createReport: async function (reportData: IUserReport): Promise<IUserReport> {
     let report: IUserReport = new UserReport(reportData);
-    console.log("REPORT: ", report);
     if (!report) throw new Error(`Error creating report`);
+    if(report.reporterId.toString()==report.reportedId.toString()) throw new Error("Can't report yourself");
 
     let result: IUserReport = await report.save();
     if (!result) throw new Error(`Error saving report`);
+    console.log("REPORT: ", report);
 
     return result;
   },

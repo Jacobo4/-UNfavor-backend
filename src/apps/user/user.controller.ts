@@ -130,12 +130,13 @@ const userController = {
   },
   createReport: async function (req: RequestWithUser, res: Response) {
     try {
+      // Añadimos el id del usuario que reporta
+      req.body.reporterId = req.user.id;
       // Recogemos la información del reporte de req.body
       const reportData: IUserReport = req.body;
-  
       // Asegúrate de que la información del reporte sea válida
-      if (!reportData) throw new Error('No report data provided');
-  
+      if (Object.keys(reportData).length!=3) throw new Error('No report data provided');
+
       // Creamos el reporte
       const report: IUserReport = await userService.createReport(reportData);
   

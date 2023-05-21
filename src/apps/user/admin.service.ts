@@ -5,12 +5,6 @@ import UserReport, { IUserReport } from './userReport.model';
 
 const adminService = {
 
-    getAdminInfo: async function (userId: string): Promise<IUser> {
-        let user: IUser = await User.findById(userId).select('-password').exec();
-        if (!user) throw new Error(`User not found`);
-        return user;
-    },
-
     allUsers: async function (): Promise<IUser[]> {
         let users: IUser[] = await User.find().select('-password').exec();
         if (!users) throw new Error(`Users not found`);
