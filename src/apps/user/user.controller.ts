@@ -3,6 +3,7 @@ import userService from './user.service';
 import { RequestWithUser } from '../typescriptCrap/requestWithUser';
 import { IUser, IFavor } from './user.model';
 import { ITokens } from '../typescriptCrap/userTypes';
+import { IUserReport } from './userReport.model';
 
 const userController = {
   getUser: async function (req: RequestWithUser, res: Response) {
@@ -125,6 +126,27 @@ const userController = {
     } catch (error) {
       console.log('ERROR in deleteUser: ', error.message);
       return res.status(401).send({ message: error.message, error });
+    }
+  },
+  createReport: async function (req: RequestWithUser, res: Response) {
+    try {
+      // Recogemos la información del reporte de req.body
+      const reportData: IUserReport = req.body;
+  
+      // Asegúrate de que la información del reporte sea válida
+      if (!reportData) throw new Error('No report data provided');
+  
+      // Creamos el reporte
+      const report: IUserReport = await userService.createReport(reportData);
+  
+      // Devolvemos la respuesta con el reporte creado
+      res.status(201).send({
+        message: 'Report created',
+        report: report,
+      });
+    } catch (error) {
+      console.log('ERROR in createReport: ', error.message);
+      return res.status(500).send({ message: error.message, error });
     }
   },
 };

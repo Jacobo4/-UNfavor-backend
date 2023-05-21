@@ -5,6 +5,8 @@ import { _ } from "lodash";
 import axios from 'axios';
 import {IUserInfo, IChatUser, ITokens} from '../typescriptCrap/userTypes';
 import { ObjectId } from 'mongoose';
+import UserReport, { IUserReport } from './userReport.model';
+
 
 const userService = {
   getUserInfo: async function (userId: ObjectId): Promise<IUser> {
@@ -123,7 +125,17 @@ const userService = {
     if (!deletedUser) throw new Error("Usuario not found"); // Lanza un error si no se encontró el usuario
 
     return deletedUser;
-  }
+  },
+  createReport: async function (reportData: IUserReport): Promise<IUserReport> {
+    let report: IUserReport = new UserReport(reportData);
+    console.log("REPORT: ", report);
+    if (!report) throw new Error(`Error creating report`);
+
+    let result: IUserReport = await report.save();
+    if (!result) throw new Error(`Error saving report`);
+
+    return result;
+  },
 }
 
 export default userService;

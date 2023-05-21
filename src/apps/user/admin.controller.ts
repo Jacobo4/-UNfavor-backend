@@ -54,7 +54,19 @@ const adminController = {
             console.log('ERROR in statistics: ', error.message);
             return res.status(401).send({ message: error.message, error });
         }
-    }
+    },
+    getReports: async function (_: RequestWithUser, res: Response) {
+        try{
+            const reports = await adminService.getAllReports();
+            res.status(200).send({
+                message: 'Reports found',
+                reports: reports,
+            });
+        } catch (error) {
+            console.log('ERROR in getReports: ', error.message);
+            return res.status(401).send({ message: error.message, error });
+        }
+    }, 
 
 };
 

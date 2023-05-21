@@ -15,12 +15,14 @@ router.post("/login", UserController.login);
 router.post("/refresh", UserController.refresh);
 router.put("/updateProfile",validateToken, UserController.updateUser);
 router.delete("/deleteProfile",validateToken, UserController.deleteUser);
+router.post("/createReport", validateToken, UserController.createReport);
 
 
 router.get("/admin", validateAdmin, AdminController.admin);
 router.get("/users", validateAdmin, AdminController.getUsers);
 router.put("/controlFavor", validateAdmin, AdminController.controlFavor);
 router.get("/statistics", validateAdmin, AdminController.statistics);
+router.get("/reports", validateAdmin, AdminController.getReports);
 
 //router.post("/post", validateToken, UserController.post);
 
