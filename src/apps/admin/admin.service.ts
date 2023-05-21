@@ -1,7 +1,6 @@
-import User, { IUser, IFavor } from './user.model';
+import User, { IUser, IFavor } from '../user/user.model';
 import { ObjectId } from "mongoose";
-import UserReport, { IUserReport } from './userReport.model';
-
+import UserReport, { IUserReport } from '../user/userReport.model';
 
 const adminService = {
 
