@@ -3,6 +3,10 @@ import {IUser, IFavor} from '../user/user.model';
 import {ObjectId} from "mongoose";
 import matchService from "../match/match.service";
 import {IMatch} from "../match/match.model";
+import FavorHistory, { IFavorHistory, IFavorRecommendation } from './favor.model';
+import {IFavorExtended} from './favor.model';
+import vectorDBService from '../vectorDB/vector.service';
+
 
 const favorService = {
 
@@ -16,10 +20,41 @@ const favorService = {
     const users: IUser[] = await User.find().exec();
     if (!users) throw new Error(`Error getting favors`);
     let favors: IFavor[] = []
-    for(let i = 0; i < users.length; i++){
+    for(let i: number = 0; i < users.length; i++){
       favors.push(users[i].favor)
     }
     return favors;
+  },
+
+  recommendFavors: async (userId: ObjectId): Promise<Array<IFavorRecommendation>> => {
+    const favor_history: IFavorHistory = await FavorHistory.findById(userId).exec();
+    if(!favor_history) throw new Error('Error getting user favor history');
+
+    const matched_userids: Array<ObjectId> = await vectorDBService.getRecommendation(favor_history);
+
+    let recommended_favors: Array<IFavorRecommendation> = [];
+    
+    const recommended_users: Array<IUser> = await User.find({
+      '_id': {
+        $in: matched_userids
+      }
+    }).exec();
+    if(!recommended_users) throw new Error("Error recomendations couldn't be found");
+
+    for(let i: number = 0; i < recommended_users.length; i++){
+      recommended_favors.push({
+        user_id: recommended_users[i]._id,
+        name: recommended_users[i].name,
+        age: recommended_users[i].age,
+        favor_date_published: recommended_users[i].favor.date_published,
+        favor_title: recommended_users[i].favor.title,
+        favor_description: recommended_users[i].favor.description,
+        favor_category: recommended_users[i].favor.category,
+        favor_review_avg: recommended_users[i].favor.reviews.review_sum / recommended_users[i].favor.reviews.review_num
+      });
+    }
+
+    return recommended_favors;
   },
 
   userLikeFavor: async (userAId: ObjectId, userBId: ObjectId): Promise<IFavor> => {
@@ -27,9 +62,18 @@ const favorService = {
     if(!userBId) throw new Error(`Error getting userBId`);
     if(userAId == userBId) throw new Error('Can\'t like your own favor');
 
+    let userA: IUser = await User.findById(userAId).exec();
     let userB: IUser = await User.findById(userBId).exec();
 
+    if(!userA) throw new Error('Error getting userA');
     if (!userB) throw new Error(`Error getting userB`);
+
+    const likedFavor: IFavorExtended = {
+      ...userB.favor,
+      user_id: userB._id
+    };
+    FavorHistory.updateOne({_id: userA._id}, {$addToSet: {favors: likedFavor}})
+
     if(!userB.favor.possible_matches.includes(userAId)){
       userB.favor.possible_matches.push(userAId);
       const result: IUser = await userB.save();

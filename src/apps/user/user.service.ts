@@ -5,6 +5,8 @@ import { _ } from "lodash";
 import axios from 'axios';
 import {IUserInfo, IChatUser, ITokens} from '../typescriptCrap/userTypes';
 import { ObjectId } from 'mongoose';
+import FavorHistory, { IFavorHistory } from '../favor/favor.model';
+import vectorDB from '../vectorDB/vector.service';
 
 const userService = {
   getUserInfo: async function (userId: ObjectId): Promise<IUser> {
@@ -39,6 +41,14 @@ const userService = {
 
     let tokens: ITokens = jwtService.generate(result._id, result.email, false, chat.secret);
     if (!tokens) throw new Error(`Error generating tokens`);
+
+    let favorH: IFavorHistory = new FavorHistory({_id: user._id, favors:[]});
+    if(!favorH) throw new Error('Error creating favorhistory for user');
+
+    let favorHResult: IFavorHistory = await favorH.save();
+    if(!favorHResult) throw new Error('Error saving favorhistory for user');
+
+    if(! await vectorDB.addFavor(user._id, user.favor)) throw new Error("Error adding user favor to vectorDB");
 
     return { result, tokens, favor: result.favor };
   },
@@ -112,6 +122,22 @@ const userService = {
     // Comprobar si se encontró y actualizó el usuario
     if (!updateUser) throw new Error("Usuario no encontrado"); // Lanza un error si no se encontró el usuario
 
+    let flag: boolean = false;
+    let user: IUser = await User.findById(userId);
+    let favor: IFavor = user.favor;
+
+    if("favor.description" in filteredUserData){
+      flag = true;
+      favor.description = filteredUserData["favor.description"];
+    }
+
+    if("favor.title" in filteredUserData){
+      flag = true;
+      favor.title = filteredUserData["favor.title"];
+    }
+
+    if(flag) if(! await vectorDB.editFavor(userId, favor)) throw new Error("Favor couldn't be update on vector db");
+
     // Retornar el usuario actualizado
     return updateUser;
   },
@@ -119,6 +145,8 @@ const userService = {
   deleteUser: async function (userId: ObjectId): Promise<IUser> {
     const deletedUser: IUser = await User.findByIdAndRemove(userId);
     if (!deletedUser) throw new Error("Usuario not found"); // Lanza un error si no se encontró el usuario
+
+    if(!await vectorDB.deleteFavor(userId)) throw new Error("User favor couldn't be deleted from vector db");
 
     return deletedUser;
   }

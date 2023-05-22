@@ -7,7 +7,7 @@ import favorService from './favor.service';
 
 const favor = {
   getFavors: async (req: RequestWithUser, res: Response) => {
-    const userId = req.user._id;
+    const userId = req.user.id;
     let user: IUser, favors: IFavor[];
     try {
       user = await userService.getUserInfo(userId);
@@ -40,6 +40,23 @@ const favor = {
     res.status(200).send({
       message: 'Favor liked',
       favor: favor,
+    });
+  },
+
+  recommendFavors: async (req: RequestWithUser, res: Response) => {
+    const userId: ObjectId = req.user.id;
+
+    let recommended_favors: Array<Partial<IUser>> = [];
+    try{
+      recommended_favors = await favorService.recommendFavors(userId);
+    }catch (error){
+      console.log('ERROR in recommend favors: ', error.message);
+      return res.status(401).send({name: error.name, message: error.message});
+    }
+
+    res.status(200).send({
+      message: 'Favor recommended',
+      favors: recommended_favors
     });
   }
 
