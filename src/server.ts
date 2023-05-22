@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import webpush from 'web-push';
 import {config} from "./config/config";
 import app from "./app";
+import Match from "./apps/match/match.model";
 import Subscription from './apps/user/suscribe.model';
 
 mongoose.connect(config.mongo.url, {  retryWrites: true, w: 'majority' })
@@ -25,23 +26,17 @@ webpush.setVapidDetails(
 );
 
 // Handle change events
-Subscription.watch().on('change', async (change) => {
+Match.watch().on('change', async (change) => {
   console.log("ENTRANDOOOOOO");
   if (change.operationType === 'insert') {
     const newMatch = change.fullDocument;
-    const userId = newMatch.userId;
+    let id = newMatch.userId;
 
     // Retrieve user's subscription information from MongoDB
-    let user = await Subscription.find({userId}).exec();
-    if (!user) {
+    let subscription = await Subscription.find({userId: id}).select('-userId').exec();
+    if (!subscription) {
       console.error('Error retrieving user:');
       return;
-    }
-
-    const subscription = {
-      endpoint: user.endpoint,
-      expirationTime: user.expirationTime,
-      keys: user.keys,
     }
 
     // Prepare the push notification payload
@@ -51,14 +46,12 @@ Subscription.watch().on('change', async (change) => {
     });
 
     // Send the push notification using web-push
-    let result = webpush.sendNotification(subscription, payload)
+    webpush.sendNotification(subscription[0], payload)
       .then(() => {
         console.log('Successfully sent push notification');
       })
       .catch((error) => {
         console.error('Error sending push notification:', error);
       });
-
-    console.log(result);
   }
 });
