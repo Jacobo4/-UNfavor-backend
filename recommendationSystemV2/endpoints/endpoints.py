@@ -1,5 +1,7 @@
 from typing import Dict, List
+from manager.load_config import CONFIG
 import re
+import numpy as np
 
 from torch import embedding
 
@@ -94,6 +96,9 @@ def getRecommendations(favor: Dict) -> List | None:
 
         favor_vector: List = transform(fa["favor"]).flatten().tolist()
         embeddings.append(favor_vector)
+
+    for _ in range(CONFIG["BOUNCINESS"]):
+        embeddings.append(np.random.uniform(low=-2.0, high=2.0, size=1024))
 
     search_params: Dict = {"metric_type": "L2", "params": {"nprobe": 10}}
 

@@ -15,6 +15,17 @@ usuarios = [
     ["Juan Camilo", "juzambranol@unal.edu.co"]
 ]
 
+favors = [
+    {'description': "Purchase and deliver groceries to someone's doorstep.", 'title': 'Grocery Run'},
+    {'description': "Take care of someone's pets while they are away.", 'title': 'Pet Sitting'},
+    {'description': 'Assist with troubleshooting and resolving technical issues.', 'title': 'Tech Support'},
+    {'description': "Clean and organize someone's home.", 'title': 'House Cleaning'},
+    {'description': 'Cook and package meals for someone who is busy or unable to cook.', 'title': 'Meal Preparation'},
+    {'description': 'Help with gardening tasks such as weeding, watering, and planting.', 'title': 'Garden Maintenance'},
+    {'description': 'Look after someone\'s children for a specified period of time.', 'title': 'Babysitting'},
+    {'description': 'Run errands on behalf of someone, such as picking up prescriptions or mailing packages.', 'title': 'Errand Assistance'}
+]
+
 status = ['REVIEWING', 'PUBLISHED', 'DENIED']
 
 def createUser(info, index):
@@ -35,8 +46,8 @@ def createUser(info, index):
             "age": 21+age,
         },
         "favor":{
-            "title": f"Testing user {index+1}",
-            "description": f"This is a testing favor that belongs to {info[0]}",
+            "title": f"{favors[index]['title']}",
+            "description": f"{favors[index]['description']}",
             "location": "Unal",
             "date_published": f'2023-0{month}-{day}',
             "favor_state": currently,
