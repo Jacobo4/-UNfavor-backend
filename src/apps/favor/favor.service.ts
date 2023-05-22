@@ -5,7 +5,8 @@ import matchService from "../match/match.service";
 import {IMatch} from "../match/match.model";
 
 interface IProfile extends IFavor{
-  id: ObjectId
+  id: ObjectId,
+  email: String
 }
 
 const favorService = {
@@ -16,14 +17,16 @@ const favorService = {
     return user.favor;
   },
 
-  getAll: async (): Promise<IFavor[]> => {
+  getAll: async (userId: ObjectId): Promise<IFavor[]> => {
     const users: IUser[] = await User.find({"favor.favor_state": "PUBLISHED"}).exec();
     if (!users) throw new Error(`Error getting favors`);
     let favors: IProfile[] = []
-    let favor;
+    let favor: Partial<IProfile>;
     for(let i = 0; i < users.length; i++){
+      if(users[i]._id.toString() == userId.toString()) continue;
       favor = {...users[i].favor};
       favor.id = users[i]._id;
+      favor.email = users[i].email;
       favors.push(<IProfile>favor);
     }
     return favors;
