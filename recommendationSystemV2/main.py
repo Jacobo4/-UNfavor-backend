@@ -8,7 +8,6 @@ from security import exitHandler # DO NOT DELETE
 from endpoints import endpoints 
 
 # START DEBUGGING LIBRARIES
-from pprint import pprint
 # END DEBUGGING LIBRARIES
 
 @app.route("/vectorDB/favor/add", methods=["POST"])
@@ -38,7 +37,10 @@ def getFavor():
     res: Dict = endpoints.getFavor(favor)
 
     if not isinstance(res, Dict):
-        return {"status": 1}
+        return {"status": 0}
+
+    if "favor" not in res:
+        return {"status": 0}
 
     res["status"] = 1
 
