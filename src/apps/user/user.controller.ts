@@ -155,6 +155,10 @@ const userController = {
     try{
       req.body.userId = req.user.id;
       result = await userService.suscribe(req.body);
+      res.status(200).send({
+        message: 'User subscribed',
+        subscribe: result,
+      });
     }catch(error){
       console.log('ERROR in suscribe: ', error.message);
       return res.status(500).send({ message: error.message, error });

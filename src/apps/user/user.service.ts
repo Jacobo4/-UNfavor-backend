@@ -140,10 +140,9 @@ const userService = {
   },
   suscribe: async function(info){
     if(!info) throw new Error(`No info given`);
-    let result = await Subscription.create(info);
-    console.log("Suscribe:", result);
-
-    return result;
+    let result = await Subscription.findOneAndUpdate({userId: info.userId}, info).exec();
+    if(!result) result = await Subscription.create(info);
+    return await Subscription.findOne({userId: info.userId}).exec();
   }
 }
 
