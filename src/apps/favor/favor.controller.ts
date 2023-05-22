@@ -11,7 +11,7 @@ const favor = {
     let user: IUser, favors: IFavor[];
     try {
       user = await userService.getUserInfo(userId);
-      favors = await favorService.getAll();
+      favors = await favorService.getAll(userId);
     } catch (error) {
       console.log('ERROR in getFavors: ', error.message);
       return res.status(401).send({ message: error.message, error });
