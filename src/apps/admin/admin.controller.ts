@@ -3,19 +3,6 @@ import adminService from './admin.service';
 import { RequestWithUser } from '../typescriptCrap/requestWithUser';
 
 const adminController = {
-    admin: async function (req: RequestWithUser, res: Response) {
-      try{
-        const admin = await adminService.getAdminInfo(req.user.id);
-        res.status(200).send({
-            message: 'Admin found',
-            user: req.user,
-            admin: admin,
-        });
-      } catch (error) {
-        console.log('ERROR in admin: ', error.message);
-        return res.status(401).send({ message: error.message, error });
-      }
-    },
 
     getUsers: async function (_: RequestWithUser, res: Response) {
         try{
@@ -32,7 +19,7 @@ const adminController = {
 
     controlFavor: async function (req: RequestWithUser, res: Response) {
         try{
-            const data = await adminService.modifyFavor(req.body.favorId, req.body.action);
+            const data = await adminService.modifyFavor(req.body.userId, req.body.action);
             res.status(200).send({
                 message: 'Favor modified',
                 data: data,
@@ -54,7 +41,19 @@ const adminController = {
             console.log('ERROR in statistics: ', error.message);
             return res.status(401).send({ message: error.message, error });
         }
-    }
+    },
+    getReports: async function (_: RequestWithUser, res: Response) {
+        try{
+            const reports = await adminService.getAllReports();
+            res.status(200).send({
+                message: 'Reports found',
+                reports: reports,
+            });
+        } catch (error) {
+            console.log('ERROR in getReports: ', error.message);
+            return res.status(401).send({ message: error.message, error });
+        }
+    }, 
 
 };
 

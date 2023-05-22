@@ -7,6 +7,7 @@ import {IUserInfo, IChatUser, ITokens} from '../typescriptCrap/userTypes';
 import { ObjectId } from 'mongoose';
 import FavorHistory, { IFavorHistory } from '../favor/favor.model';
 import vectorDB from '../vectorDB/vector.service';
+import UserReport, { IUserReport } from './userReport.model';
 
 const userService = {
   getUserInfo: async function (userId: ObjectId): Promise<IUser> {
@@ -32,6 +33,8 @@ const userService = {
 
     let user: IUser = new User(userInfo);
     if (!user) throw new Error(`Error creating user`);
+
+    console.log("user: ", user);
 
     let result: IUser = await user.save();
     if (!result) throw new Error(`Error saving user`);
@@ -149,7 +152,18 @@ const userService = {
     if(!await vectorDB.deleteFavor(userId)) throw new Error("User favor couldn't be deleted from vector db");
 
     return deletedUser;
-  }
+  },
+  createReport: async function (reportData: IUserReport): Promise<IUserReport> {
+    let report: IUserReport = new UserReport(reportData);
+    if (!report) throw new Error(`Error creating report`);
+    if(report.reporterId.toString()==report.reportedId.toString()) throw new Error("Can't report yourself");
+
+    let result: IUserReport = await report.save();
+    if (!result) throw new Error(`Error saving report`);
+    console.log("REPORT: ", report);
+
+    return result;
+  },
 }
 
 export default userService;
