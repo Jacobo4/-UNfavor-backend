@@ -150,6 +150,15 @@ const userController = {
       return res.status(500).send({ message: error.message, error });
     }
   },
+  suscribe: async function(req: RequestWithUser, res: Response){
+    let result;
+    try{
+      result = await userService.suscribe(req.body);
+    }catch(error){
+      console.log('ERROR in suscribe: ', error.message);
+      return res.status(500).send({ message: error.message, error });
+    }
+  }
 };
 
 export default userController;

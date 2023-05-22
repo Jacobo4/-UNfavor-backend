@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwtService from '../authenticate/jwt.service';
 import User, { IUser, IFavor } from './user.model';
+import Subscription from './suscribe.model';
 import { _ } from "lodash";
 import axios from 'axios';
 import {IUserInfo, IChatUser, ITokens} from '../typescriptCrap/userTypes';
@@ -137,6 +138,13 @@ const userService = {
 
     return result;
   },
+  suscribe: async function(info){
+    if(!info) throw new Error(`No info given`);
+    let result = await Subscription.create(info);
+    console.log("Suscribe:", result);
+
+    return result;
+  }
 }
 
 export default userService;
