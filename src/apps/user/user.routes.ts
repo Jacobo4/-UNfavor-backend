@@ -7,7 +7,7 @@ const router: Router = express.Router();
 
 router.get("/info", validateToken, UserController.getUser);
 router.get("/logout", UserController.logout);
-router.get("/stalk", validateToken, UserController.seeProfile);
+router.post("/stalk", validateToken, UserController.seeProfile);
 router.post("/register", UserController.signup);
 router.post("/login", UserController.login);
 router.post("/refresh", UserController.refresh);

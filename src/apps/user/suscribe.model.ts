@@ -1,6 +1,7 @@
-const mongoose = require ('mongoose');
+import mongoose, { Schema } from 'mongoose';
 
-const Subscription = new mongoose.Schema ({
+const Subscription = new Schema ({
+  userId: Schema.Types.ObjectId,
   endpoint: String,
   expirationTime: Number,
   keys: {

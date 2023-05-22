@@ -153,6 +153,7 @@ const userController = {
   suscribe: async function(req: RequestWithUser, res: Response){
     let result;
     try{
+      req.body.userId = req.user.id;
       result = await userService.suscribe(req.body);
     }catch(error){
       console.log('ERROR in suscribe: ', error.message);
