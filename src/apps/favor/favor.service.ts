@@ -4,6 +4,10 @@ import {ObjectId} from "mongoose";
 import matchService from "../match/match.service";
 import {IMatch} from "../match/match.model";
 
+interface IProfile extends IFavor{
+  id: ObjectId
+}
+
 const favorService = {
 
   getFavor: async (userId: ObjectId): null | Promise<IFavor> => {
@@ -15,9 +19,12 @@ const favorService = {
   getAll: async (): Promise<IFavor[]> => {
     const users: IUser[] = await User.find({"favor.favor_state": "PUBLISHED"}).exec();
     if (!users) throw new Error(`Error getting favors`);
-    let favors: IFavor[] = []
+    let favors: IProfile[] = []
+    let favor;
     for(let i = 0; i < users.length; i++){
-      favors.push(users[i].favor)
+      favor = {...users[i].favor};
+      favor.id = users[i]._id;
+      favors.push(<IProfile>favor);
     }
     return favors;
   },
