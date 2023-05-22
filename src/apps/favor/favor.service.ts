@@ -40,7 +40,12 @@ const favorService = {
     const favor_history: IFavorHistory = await FavorHistory.findById(userId).exec();
     if(!favor_history) throw new Error('Error getting user favor history');
 
-    const matched_userids: Array<ObjectId> = await vectorDBService.getRecommendation(favor_history);
+    const recommendations: Array<any> = await vectorDBService.getRecommendation(favor_history);
+    let matched_userids: Array<ObjectId> = []
+
+    for(let i: number = 0; i < recommendations.length; i++){
+      matched_userids.push(recommendations[i].userid);
+    }
 
     let recommended_favors: Array<IFavorRecommendation> = [];
     
@@ -82,7 +87,7 @@ const favorService = {
       ...userB.favor,
       user_id: userB._id
     };
-    FavorHistory.updateOne({_id: userA._id}, {$addToSet: {favors: likedFavor}})
+    await FavorHistory.updateOne({_id: userA._id}, {$addToSet: {favors: likedFavor}}).exec();
 
     if(!userB.favor.possible_matches.includes(userAId)){
       userB.favor.possible_matches.push(userAId);

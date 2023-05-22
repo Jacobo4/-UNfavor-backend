@@ -31,7 +31,7 @@ const vectorDBService = {
 
   deleteFavor: async function (userid: ObjectId): Promise<boolean> {
     const options: any = {
-      method: 'POST',
+      method: 'GET',
       url: config.vectorDB.url + '/vectorDB/favor/delete',
       params: {},
       headers: {
@@ -86,8 +86,8 @@ const vectorDBService = {
     }
 
     const options: any = {
-      method: 'POST',
-      url: config.vectorDB.url + '/vectorDB/favor/delete',
+      method: 'GET',
+      url: config.vectorDB.url + '/recommender',
       params: {},
       headers: {
         'content-type': 'application/json',

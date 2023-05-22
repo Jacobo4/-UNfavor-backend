@@ -27,7 +27,7 @@ const FavorHistorySchema = new Schema<IFavorHistory>({
       comments: [String],
     }
   }],
-}, { collection: 'matchs' });
+}, { collection: 'favorHistory' });
 
 export interface IFavorRecommendation {
   user_id: ObjectId;
