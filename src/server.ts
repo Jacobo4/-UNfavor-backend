@@ -27,31 +27,32 @@ webpush.setVapidDetails(
 
 // Handle change events
 Match.watch().on('change', async (change) => {
-  console.log("ENTRANDOOOOOO");
+  console.log("ENTRANDOOOOOO", change.operationType);
   if (change.operationType === 'insert') {
     const newMatch = change.fullDocument;
-    let id = newMatch.userId;
+    for(let id of [newMatch.userA_id, newMatch.userB_id]) {
 
-    // Retrieve user's subscription information from MongoDB
-    let subscription = await Subscription.find({userId: id}).select('-userId').exec();
-    if (!subscription) {
-      console.error('Error retrieving user:');
-      return;
-    }
+      // Retrieve user's subscription information from MongoDB
+      let subscription = await Subscription.find({userId: id}).select('-userId').exec();
+      if (!subscription) {
+        console.error('Error retrieving user:');
+        return;
+      }
 
-    // Prepare the push notification payload
-    const payload = JSON.stringify({
-      title: 'New Match',
-      body: 'You have a new match!',
-    });
-
-    // Send the push notification using web-push
-    webpush.sendNotification(subscription[0], payload)
-      .then(() => {
-        console.log('Successfully sent push notification');
-      })
-      .catch((error) => {
-        console.error('Error sending push notification:', error);
+      // Prepare the push notification payload
+      const payload = JSON.stringify({
+        title: 'New Match',
+        body: 'You have a new match!',
       });
+
+      // Send the push notification using web-push
+      webpush.sendNotification(subscription[0], payload)
+        .then(() => {
+          console.log('Successfully sent push notification with id:', id);
+        })
+        .catch((error) => {
+          console.error('Error sending push notification:', error);
+        });
+    }
   }
 });

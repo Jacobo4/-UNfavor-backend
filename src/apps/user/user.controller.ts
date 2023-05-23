@@ -8,27 +8,15 @@ import { IUserReport } from './userReport.model';
 const userController = {
   getUser: async function (req: RequestWithUser, res: Response) {
     try {
-      const user: IUser = await userService.getUserInfo(req.user.id);
+      let user: IUser;
+      if(req.user.email==req.body.email) user = await userService.getUserInfo(req.user.id);
+      else user = await userService.getProfile(req.body.email);
       res.status(200).send({
         message: 'User found',
         user: user,
       });
     } catch (error) {
       console.log('ERROR in getUser: ', error.message);
-      return res.status(401).send({ message: error.message, error });
-    }
-  },
-
-  seeProfile: async function (req: Request, res: Response) {
-    try {
-      if(!req.body.query) throw new Error('No query provided');
-      const profile: IUser = await userService.getProfile(req.body.query);
-      res.status(200).send({
-          message: 'Profile found',
-          profile: profile,
-      });
-    } catch (error) {
-      console.log('ERROR in seeProfile: ', error.message);
       return res.status(401).send({ message: error.message, error });
     }
   },
@@ -151,16 +139,27 @@ const userController = {
     }
   },
   suscribe: async function(req: RequestWithUser, res: Response){
-    let result;
     try{
       req.body.userId = req.user.id;
-      result = await userService.suscribe(req.body);
+      let result = await userService.suscribe(req.body);
       res.status(200).send({
         message: 'User subscribed',
         subscribe: result,
       });
     }catch(error){
       console.log('ERROR in suscribe: ', error.message);
+      return res.status(500).send({ message: error.message, error });
+    }
+  },
+  matches: async function(req: RequestWithUser, res: Response){
+    try{
+      let result = await userService.getMatches(req.user.id, req.body.option);
+      res.status(200).send({
+        message: 'Matches found',
+        matches: result
+      });
+    }catch(error){
+      console.log('ERROR in seeMatches: ', error.message);
       return res.status(500).send({ message: error.message, error });
     }
   }

@@ -5,9 +5,9 @@ import validateToken from '../authenticate/validateToken.middleware';
 
 const router: Router = express.Router();
 
-router.get("/info", validateToken, UserController.getUser);
 router.get("/logout", UserController.logout);
-router.post("/stalk", validateToken, UserController.seeProfile);
+router.post("/info", validateToken, UserController.getUser);
+router.post("/matches", validateToken, UserController.matches)
 router.post("/register", UserController.signup);
 router.post("/login", UserController.login);
 router.post("/refresh", UserController.refresh);
