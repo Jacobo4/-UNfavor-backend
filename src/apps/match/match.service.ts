@@ -30,14 +30,18 @@ const matchService = {
         return matches;
     },
 
-    acceptMatch: async(userId: ObjectId, matchId: ObjectId) => {
+    finishMatch: async(userId: ObjectId, matchId: ObjectId) => {
       let match:IMatch = await Match.findById(matchId).exec();
       if(!match) throw new Error("Match doesn't exist");
-      if(userId.toString() == match.userA_id.toString()) match.userA_confirmation = true;
-      else if(userId.toString() == match.userB_id.toString()) match.userB_confirmation = true;
-      else throw new Error("User can't accept Match");
+      if(userId.toString() == match.userA_id.toString()){
+        match.userA_confirmation = true;
+        //Poner comentarios, y añadir calificacion al Usuario B
+      }else if(userId.toString() == match.userB_id.toString()){
+        match.userB_confirmation = true;
+        //Poner comentarios, y añadir calificacion al Usuario A
+      }else throw new Error("User can't accept Match");
 
-      if(match.userA_confirmation && match.userB_confirmation) match.status = "ACCEPTED";
+      if(match.userA_confirmation && match.userB_confirmation) match.status = "FINISHED";
 
       return await match.save();
     },
