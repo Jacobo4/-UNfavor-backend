@@ -8,7 +8,7 @@ const matchController = {
       if(!req.user) throw new Error("No user info");
       if(!req.body.matchId || !req.body.option) throw new Error("No match info");
       let action;
-      if(req.body.option=='finish') action = await matchService.finishMatch(req.user.id, req.body.matchId);
+      if(req.body.option=='finish') action = await matchService.finishMatch(req.user.id, req.body.matchId, req.body.comment, req.body.rating);
       else if(req.body.option=='reject') action = await matchService.rejectMatch(req.user.id, req.body.matchId);
       else throw new Error("Unknown option");
       if(!action) throw new Error("ControlMatch error");

@@ -1,8 +1,9 @@
-import { IUser } from "../user/user.model";
+import User, { IUser } from "../user/user.model";
 import Match from "./match.model";
 import {IMatch} from "./match.model";
 import favorService from "../favor/favor.service";
 import {ObjectId} from "mongoose";
+
 
 const matchService = {
 
@@ -30,20 +31,36 @@ const matchService = {
         return matches;
     },
 
-    finishMatch: async(userId: ObjectId, matchId: ObjectId) => {
-      let match:IMatch = await Match.findById(matchId).exec();
-      if(!match) throw new Error("Match doesn't exist");
-      if(userId.toString() == match.userA_id.toString()){
-        match.userA_confirmation = true;
-        //Poner comentarios, y añadir calificacion al Usuario B
-      }else if(userId.toString() == match.userB_id.toString()){
-        match.userB_confirmation = true;
-        //Poner comentarios, y añadir calificacion al Usuario A
-      }else throw new Error("User can't accept Match");
-
-      if(match.userA_confirmation && match.userB_confirmation) match.status = "FINISHED";
-
-      return await match.save();
+    finishMatch: async(userId: ObjectId, matchId: ObjectId, comment: string, rating: number) => {
+        let match:IMatch = await Match.findById(matchId).exec();
+        if(!match) throw new Error("Match doesn't exist");
+    
+        if(userId.toString() == match.userA_id.toString()){
+            match.userA_confirmation = true;
+    
+            //Poner comentarios, y añadir calificacion al Usuario B
+            let userB = await User.findByIdAndUpdate(
+                match.userB_id, 
+                {$push: {'favor.reviews.comments': comment}, $inc: {'favor.reviews.review_num': 1, 'favor.reviews.review_sum': rating}}, 
+                {new: true, useFindAndModify: false}
+            );
+        }else if(userId.toString() == match.userB_id.toString()){
+            match.userB_confirmation = true;
+    
+            //Poner comentarios, y añadir calificacion al Usuario A
+            let userA = await User.findByIdAndUpdate(
+                match.userA_id, 
+                {$push: {'favor.reviews.comments': comment}, $inc: {'favor.reviews.review_num': 1, 'favor.reviews.review_sum': rating}}, 
+                {new: true, useFindAndModify: false}
+            );
+        }else throw new Error("User can't accept Match");
+    
+        if(match.userA_confirmation && match.userB_confirmation) {
+            match.status = "COMPLETED";
+            match.date_completed = new Date();
+        }
+    
+        return await match.save();
     },
 
     rejectMatch: async(userId: ObjectId, matchId: ObjectId) => {
