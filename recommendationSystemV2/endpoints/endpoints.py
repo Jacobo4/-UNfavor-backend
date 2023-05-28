@@ -8,6 +8,10 @@ from torch import embedding
 from vectorizer.vectorizer import transform
 from manager.advanced_config import collection as col
 
+
+# LONGITUDE LATITUDE MATHY
+RADIUS = 6371
+
 def __cleanData(favor: Dict) -> None | Dict:
     cleaned_userid = favor["userid"].split()[-1]
     if not re.match("^([a-z]*[0-9]*[A-Z]*)*$", cleaned_userid):
@@ -40,9 +44,18 @@ def addFavor(favor: Dict) -> bool:
 
     favor_vector: List = transform(favor["favor"]).flatten().tolist()
 
+    posx = RADIUS * np.cos(favor['latitude']) * np.cos(favor['longitude'])
+    posy = RADIUS * np.cos(favor['latitude']) * np.sin(favor['longitude'])
+    posz = RADIUS * np.sin(favor['latitude'])
+
+
     new_favor: List = [
         [favor["userid"]],
-        [favor_vector]
+        [favor_vector],
+        [posx],
+        [posy],
+        [posz],
+        [favor["category"]]
     ]
 
     col.insert(new_favor)
@@ -102,15 +115,25 @@ def getRecommendations(favor: Dict) -> List | None:
 
     search_params: Dict = {"metric_type": "L2", "params": {"nprobe": 10}}
 
-    filters: None | str = None
+    filters: None | str = ""
 
-    if len(favor["history"]) > 0:
-        userids_list: str = f"[\"{favor['userid']}\""
-        for i in range(len(favor["history"])):
-            userids_list += f",\"{str(favor['history'][i]['userid'])}\""
-        userids_list += "]"
+    userids_list: str = f"[\"{favor['userid']}\""
+    for i in range(len(favor["history"])):
+        userids_list += f",\"{str(favor['history'][i]['userid'])}\""
+    userids_list += "]"
 
-        filters = f"userid not in {userids_list}"
+    filters = f"userid not in {userids_list}"
+
+    if favor["max_distance"] != -69:
+        posx = RADIUS * np.cos(favor['latitude']) * np.cos(favor['longitude'])
+        posy = RADIUS * np.cos(favor['latitude']) * np.sin(favor['longitude'])
+        posz = RADIUS * np.sin(favor['latitude'])
+        max_distance_squared = favor["max_distance"] * favor["max_distance"]
+
+        filters += f" and ((posx - {posx}) ** 2) + ((posy - {posy}) ** 2) + ((posz - {posz}) ** 2) <= {max_distance_squared}"
+
+    if favor["category"] != "Any":
+        filters += f" and category == {favor['category']}"
 
     print(filters)
 
