@@ -59,11 +59,31 @@ const adminService = {
 
         return data;
     },
+
     getAllReports: async function (): Promise<IUserReport[]> {
         let reports: IUserReport[] = await UserReport.find().exec();
         if (!reports) throw new Error(`Reports not found`);
         return reports;
     },
+
+    controlReports: async function(reportId: ObjectId, action: string){
+        if(!reportId) throw new Error("No report selected");
+        if(action!='accept' && action!='reject') throw new Error("No valid action");
+
+        let report: IUserReport = await UserReport.findById(reportId).exec();
+        if(!report) throw new Error("Report doesn't exist");
+
+        if(action=='accept') {
+            let deleteUser = await User.findByIdAndDelete(report.reportedId).exec();
+            if (!deleteUser) throw new Error("Error deleting user");
+        }
+
+        let deleteReport = await UserReport.findByIdAndDelete(reportId).exec();
+        if(!deleteReport) throw new Error("Error deleting report");
+
+        return action=='accept' ? `User ${report.reportedId} banned` : `Report ignored`;
+
+    }
 
 }
 

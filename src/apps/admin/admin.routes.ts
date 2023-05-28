@@ -8,6 +8,7 @@ const router: Router = express.Router();
 router.get("/users", validateAdmin, AdminController.getUsers);
 router.get("/statistics", validateAdmin, AdminController.statistics);
 router.get("/reports", validateAdmin, AdminController.getReports);
+router.post("/controlReport", validateAdmin, AdminController.controlReport);
 router.put("/controlFavor", validateAdmin, AdminController.controlFavor);
 
 export default router;

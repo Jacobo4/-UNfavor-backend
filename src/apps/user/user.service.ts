@@ -18,7 +18,7 @@ const userService = {
   },
 
   getProfile: async function (email: string): Promise<IUser> {
-    let allowed = ['favor.reviews', 'favor.title', 'favor.description', 'favor.location', 'name', 'email'];
+    let allowed = ['favor.reviews', 'favor.title', 'favor.description', 'favor.location', 'name', 'email', 'phone'];
     let user: IUser = await User.findOne({email}).select(allowed).exec();
     if (!user) throw new Error(`User not found`);
     return user;
