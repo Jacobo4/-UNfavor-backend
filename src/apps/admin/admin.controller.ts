@@ -56,19 +56,6 @@ const adminController = {
         }
     },
 
-    getReportUsers: async function(req: RequestWithUser, res: Response){
-        try{
-            const users = await adminService.getReportedUsers();
-            res.status(200).send({
-                message: "Reported users:",
-                users: users,
-            });
-        }catch(error){
-            console.log('ERROR in getReportUsers: ', error.message);
-            return res.status(401).send({ message: error.message, error });
-        }
-    },
-
     controlReport: async function(req: RequestWithUser, res: Response){
         try{
             const result = await adminService.controlReports(req.body.report, req.body.action);
