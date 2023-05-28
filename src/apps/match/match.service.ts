@@ -13,6 +13,7 @@ const matchService = {
         let matches = [];
         for(let match of asUserA){
           let info: any = JSON.parse(JSON.stringify(await favorService.getFavorInfo(match.userB_id)));
+          info.matchId = match._id;
           if(status != 'COMPLETED'){
             info.date = match.date_accepted;
             info.status = match.status;
@@ -21,6 +22,7 @@ const matchService = {
         }
         for(let match of asUserB){
           let info: any = JSON.parse(JSON.stringify(await favorService.getFavorInfo(match.userA_id)));
+          info.matchId = match._id;
           if(status != 'COMPLETED'){
             info.date = match.date_completed;
             info.status = match.status;
