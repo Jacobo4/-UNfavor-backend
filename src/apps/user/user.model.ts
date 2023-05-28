@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, ObjectId } from 'mongoose';
 export interface IFavor {
   date_published?: Date;
   favor_state?: string;
+  image?: string;
   title?: string;
   description?: string;
   category?: string;
@@ -41,6 +42,7 @@ const UserSchema = new Schema<IUser>({
   favor: {
     date_published: { type: Date, default: Date.now },
     favor_state: { type: String, enum: ['REVIEWING', 'PUBLISHED', 'DENIED'], default: 'REVIEWING' },
+    image: { type: String, required: false, default: "https://www.elcomercio.com/wp-content/uploads/2023/01/feid-ec-1-700x391.jpg"},
     title: { type: String, required: true },
     description: { type: String, required: true },
     category: String,

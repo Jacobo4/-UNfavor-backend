@@ -4,6 +4,7 @@ import {config} from "./config/config";
 import app from "./app";
 import Match from "./apps/match/match.model";
 import Subscription from './apps/user/suscribe.model';
+import UserService from "./apps/user/user.service";
 
 mongoose.connect(config.mongo.url, {  retryWrites: true, w: 'majority' })
     .then(() => {
@@ -39,10 +40,14 @@ Match.watch().on('change', async (change) => {
         return;
       }
 
+      let user;
+      if(id.toString() == newMatch.userA_id.toString()) user = await UserService.getUserInfo(newMatch.userB_id);
+      else user = await UserService.getUserInfo(newMatch.userA_id);
+
       // Prepare the push notification payload
       const payload = JSON.stringify({
         title: 'New Match',
-        body: 'You have a new match!',
+        body: 'You have a new match with '+user.email+'!',
       });
 
       // Send the push notification using web-push

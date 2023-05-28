@@ -1,6 +1,7 @@
 import User, { IUser, IFavor } from '../user/user.model';
 import { ObjectId } from "mongoose";
 import UserReport, { IUserReport } from '../user/userReport.model';
+import userService from "../user/user.service";
 
 const adminService = {
 
@@ -64,6 +65,16 @@ const adminService = {
         let reports: IUserReport[] = await UserReport.find().exec();
         if (!reports) throw new Error(`Reports not found`);
         return reports;
+    },
+
+    getReportedUsers: async function(){
+      let reports: IUserReport[] = this.getAllReports();
+      let repUsers: IUser[] = [];
+      for(let report of reports){
+          let user = await userService.getUserInfo(report.reportedId);
+          repUsers.push(user);
+      }
+      return repUsers;
     },
 
     controlReports: async function(reportId: ObjectId, action: string){
