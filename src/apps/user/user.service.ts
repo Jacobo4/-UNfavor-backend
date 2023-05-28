@@ -39,8 +39,10 @@ const userService = {
     let result: IUser = await user.save();
     if (!result) throw new Error(`Error saving user`);
 
-    let chat: IChatUser = await this.loginChat(user);
-    if (!chat) throw new Error("Error login match");
+    // TODO: Uncomment these lines in production
+    //let chat: IChatUser = await this.loginChat(user);
+    //if (!chat) throw new Error("Error login match");
+    let chat = {secret: "a"};
 
     let tokens: ITokens = jwtService.generate(result._id, result.email, false, chat.secret);
     if (!tokens) throw new Error(`Error generating tokens`);
@@ -65,8 +67,10 @@ const userService = {
     let validPassword = bcrypt.compareSync(password, user.password);
     if (!validPassword) throw new Error(`Invalid credentials`);
 
-    let chat = await this.loginChat(user);
-    if (!chat) throw new Error("Error login match");
+    // TODO: Uncomment these lines in production
+    //let chat = await this.loginChat(user);
+    //if (!chat) throw new Error("Error login match");
+    let chat = {secret: "a"};
 
     let favor: IFavor = user.favor;
     if (!favor) throw new Error(`Error finding favor`);
@@ -99,8 +103,10 @@ const userService = {
     let payload = await jwtService.verify(refreshToken, process.env.JWT_REFRESH as string);
     if (!payload) throw new Error(`Invalid refresh token`);
 
-    let chat = await this.loginChat(<IUser>payload);
-    if (!chat) throw new Error("Error login match");
+    // TODO: Uncomment these lines in production
+    //let chat = await this.loginChat(<IUser>payload);
+    //if (!chat) throw new Error("Error login match");
+    let chat = {secret: "a"};
 
     var accessToken = jwtService.generate(payload.id, payload.email, payload.admin, chat.secret).access;
     if (!accessToken) throw new Error(`Error generating access token`);

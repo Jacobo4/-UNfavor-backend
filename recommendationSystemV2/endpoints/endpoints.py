@@ -102,16 +102,31 @@ def getRecommendations(favor: Dict) -> List | None:
 
     search_params: Dict = {"metric_type": "L2", "params": {"nprobe": 10}}
 
+    filters: None | str = None
+
+    if len(favor["history"]) > 0:
+        userids_list: str = f"[\"{favor['userid']}\""
+        for i in range(len(favor["history"])):
+            userids_list += f",\"{str(favor['history'][i]['userid'])}\""
+        userids_list += "]"
+
+        filters = f"userid not in {userids_list}"
+
+    print(filters)
+
     res = col.search(
         data=embeddings,
         anns_field="favor",
         param=search_params,
-        limit=5
+        limit=5,
+        expr=filters
     )
 
-    recommendations = []
+    print(res)
+
+    recommendations = set()
     for aux in res: # type: ignore
         for entity in aux:
-            recommendations.append({"userid": entity.id})
+            recommendations.add(entity.id)
 
-    return recommendations
+    return [{"userid": i} for i in np.random.choice(list(recommendations), size=min(5, len(recommendations)), replace=False).tolist()]

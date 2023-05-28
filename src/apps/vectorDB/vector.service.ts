@@ -93,6 +93,7 @@ const vectorDBService = {
         'content-type': 'application/json',
       },
       data: {
+        'userid': favor_history._id,
         'history': history
       }
     };
