@@ -68,7 +68,7 @@ const adminService = {
     },
 
     getReportedUsers: async function(){
-      let reports: IUserReport[] = this.getAllReports();
+      let reports: IUserReport[] = await this.getAllReports();
       let repUsers: IUser[] = [];
       for(let report of reports){
           let user = await userService.getUserInfo(report.reportedId);
