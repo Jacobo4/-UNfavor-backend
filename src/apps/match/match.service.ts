@@ -34,8 +34,9 @@ const matchService = {
     finishMatch: async(userId: ObjectId, matchId: ObjectId, comment: string, rating: number) => {
         let match:IMatch = await Match.findById(matchId).exec();
         if(!match) throw new Error("Match doesn't exist");
+        if(match.status!='CREATED') throw new Error("It's not possible to finish this match");
     
-        if(userId.toString() == match.userA_id.toString()){
+        if(userId.toString() == match.userA_id.toString() && !match.userA_confirmation){
             match.userA_confirmation = true;
     
             //Poner comentarios, y añadir calificacion al Usuario B
@@ -44,7 +45,7 @@ const matchService = {
                 {$push: {'favor.reviews.comments': comment}, $inc: {'favor.reviews.review_num': 1, 'favor.reviews.review_sum': rating}}, 
                 {new: true, useFindAndModify: false}
             );
-        }else if(userId.toString() == match.userB_id.toString()){
+        }else if(userId.toString() == match.userB_id.toString() && !match.userB_confirmation){
             match.userB_confirmation = true;
     
             //Poner comentarios, y añadir calificacion al Usuario A
