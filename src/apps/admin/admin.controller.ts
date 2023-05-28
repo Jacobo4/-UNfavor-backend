@@ -53,7 +53,20 @@ const adminController = {
             console.log('ERROR in getReports: ', error.message);
             return res.status(401).send({ message: error.message, error });
         }
-    }, 
+    },
+
+    controlReport: async function(req: RequestWithUser, res: Response){
+        try{
+            const result = await adminService.controlReports(req.body.report, req.body.action);
+            return res.status(200).send({
+                message: "Report managed",
+                info: result,
+            });
+        }catch(error){
+            console.log('ERROR in controlReport: ', error.message);
+            return res.status(401).send({ message: error.message, error });
+        }
+    }
 
 };
 

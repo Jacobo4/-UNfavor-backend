@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwtService from '../authenticate/jwt.service';
 import User, { IUser, IFavor } from './user.model';
+import Subscription from './suscribe.model';
 import { _ } from "lodash";
 import axios from 'axios';
 import {IUserInfo, IChatUser, ITokens} from '../typescriptCrap/userTypes';
@@ -8,19 +9,18 @@ import { ObjectId } from 'mongoose';
 import FavorHistory, { IFavorHistory } from '../favor/favor.model';
 import vectorDB from '../vectorDB/vector.service';
 import UserReport, { IUserReport } from './userReport.model';
+import MatchService from "../match/match.service";
 
 const userService = {
   getUserInfo: async function (userId: ObjectId): Promise<IUser> {
-    let user: IUser = await User.findById(userId).select('-password').exec();
-
+    let user: IUser = await User.findById(userId).select('-password -admin').exec();
     if (!user) throw new Error(`User not found`);
     return user;
   },
 
   getProfile: async function (email: string): Promise<IUser> {
-    let allowed = ['favor', 'name', 'email', 'user_reviews_sum', 'user_reviews_avg'];
+    let allowed = ['favor.reviews', 'favor.title', 'favor.description', 'favor.location', 'name', 'email', 'phone'];
     let user: IUser = await User.findOne({email}).select(allowed).exec();
-
     if (!user) throw new Error(`User not found`);
     return user;
   },
@@ -170,6 +170,24 @@ const userService = {
 
     return result;
   },
+  suscribe: async function(info){
+    if(!info) throw new Error(`No info given`);
+    let result = await Subscription.findOneAndUpdate({userId: info.userId}, info).exec();
+    if(!result) result = await Subscription.create(info);
+    console.log("Suscribed");
+    return await Subscription.findOne({userId: info.userId}).exec();
+  },
+  getMatches: async function(id, option){
+    if(!id) throw new Error('No id given');
+    let matches = [];
+    let status: any = "FINISHED";
+    if(option != 'FINISHED') status = {$ne: "FINISHED"}
+    try {
+      matches = await MatchService.getFinishedMatches(id, status);
+    }catch(error) { throw new Error(error); }
+
+    return matches;
+  }
 }
 
 export default userService;

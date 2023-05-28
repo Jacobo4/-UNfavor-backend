@@ -15,10 +15,12 @@ interface IProfile extends IFavor{
 
 const favorService = {
 
-  getFavor: async (userId: ObjectId): null | Promise<IFavor> => {
-    const user: IUser = await User.findById(userId).exec();
-    if (!user) return null;
-    return user.favor;
+  getFavorInfo: async function (userId: ObjectId): Promise<IUser> {
+    let allowedFinished = ['favor.reviews', 'favor.title', 'favor.description', 'favor.location', 'name', 'email'];
+    let user: IUser = await User.findById(userId).select(allowedFinished).exec();
+
+    if (!user) throw new Error(`User not found`);
+    return user;
   },
 
   getAll: async (userId: ObjectId): Promise<IFavor[]> => {

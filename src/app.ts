@@ -4,6 +4,7 @@ import express from 'express';
 import route_user from './apps/user/user.routes';
 import route_admin from './apps/admin/admin.routes';
 import route_favor from './apps/favor/favor.routes';
+import route_match from './apps/match/match.routes';
 
 const app = express();
 
@@ -25,5 +26,6 @@ app.use((req, res, next) => {
 app.use("/user", route_user);
 app.use("/admin", route_admin);
 app.use("/favor", route_favor);
+app.use("/match", route_match);
 
 export default app;
