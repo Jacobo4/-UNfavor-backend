@@ -68,7 +68,7 @@ const adminService = {
     },
 
     getReportedUsers: async function(){
-      let reports: IUserReport[] = this.getAllReports();
+      let reports: IUserReport[] = await this.getAllReports();
       let repUsers: IUser[] = [];
       for(let report of reports){
           let user = await userService.getUserInfo(report.reportedId);
@@ -79,12 +79,12 @@ const adminService = {
 
     controlReports: async function(reportId: ObjectId, action: string){
         if(!reportId) throw new Error("No report selected");
-        if(action!='accept' && action!='reject') throw new Error("No valid action");
+        if(action!='ACCEPT' && action!='REJECT') throw new Error("No valid action");
 
         let report: IUserReport = await UserReport.findById(reportId).exec();
         if(!report) throw new Error("Report doesn't exist");
 
-        if(action=='accept') {
+        if(action=='ACCEPT') {
             let deleteUser = await User.findByIdAndDelete(report.reportedId).exec();
             if (!deleteUser) throw new Error("Error deleting user");
         }
@@ -92,7 +92,7 @@ const adminService = {
         let deleteReport = await UserReport.findByIdAndDelete(reportId).exec();
         if(!deleteReport) throw new Error("Error deleting report");
 
-        return action=='accept' ? `User ${report.reportedId} banned` : `Report ignored`;
+        return action=='ACCEPT' ? `User ${report.reportedId} banned` : `Report ignored`;
 
     }
 

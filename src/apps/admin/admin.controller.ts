@@ -42,6 +42,7 @@ const adminController = {
             return res.status(401).send({ message: error.message, error });
         }
     },
+
     getReports: async function (_: RequestWithUser, res: Response) {
         try{
             const reports = await adminService.getAllReports();
@@ -51,6 +52,19 @@ const adminController = {
             });
         } catch (error) {
             console.log('ERROR in getReports: ', error.message);
+            return res.status(401).send({ message: error.message, error });
+        }
+    },
+
+    getReportUsers: async function(req: RequestWithUser, res: Response){
+        try{
+            const users = await adminService.getReportedUsers();
+            res.status(200).send({
+                message: "Reported users:",
+                users: users,
+            });
+        }catch(error){
+            console.log('ERROR in getReportUsers: ', error.message);
             return res.status(401).send({ message: error.message, error });
         }
     },
