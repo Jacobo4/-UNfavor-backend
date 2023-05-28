@@ -42,6 +42,7 @@ const adminController = {
             return res.status(401).send({ message: error.message, error });
         }
     },
+
     getReports: async function (_: RequestWithUser, res: Response) {
         try{
             const reports = await adminService.getAllReports();

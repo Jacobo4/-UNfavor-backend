@@ -180,8 +180,8 @@ const userService = {
   getMatches: async function(id, option){
     if(!id) throw new Error('No id given');
     let matches = [];
-    let status: any = "FINISHED";
-    if(option != 'FINISHED') status = {$ne: "FINISHED"}
+    let status: any = "COMPLETED";
+    if(option != 'COMPLETED') status = {$ne: "COMPLETED"}
     try {
       matches = await MatchService.getFinishedMatches(id, status);
     }catch(error) { throw new Error(error); }
