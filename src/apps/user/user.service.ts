@@ -114,7 +114,14 @@ const userService = {
     // Buscar y actualizar el usuario en la base de datos, newUserData es un objeto con los elementos a actualizar.
     const updateUser: IUser = await User.findByIdAndUpdate(
       userId,
-      { $set: filteredUserData }, // Utilizar el operador $set para actualizar sólo los campos permitidos
+      {
+        name: filteredUserData.name,
+        phone: filteredUserData.phone,
+        "favor.title": filteredUserData.favor.title,
+        "favor.description": filteredUserData.favor.description,
+        "favor.location": filteredUserData.favor.location,
+        "favor.category": filteredUserData.favor.category
+      }, // Utilizar el operador $set para actualizar sólo los campos permitidos
       { new: true } // Para obtener el objeto actualizado en la respuesta
     ).select('-password -admin').exec();
 
