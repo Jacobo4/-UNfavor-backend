@@ -22,8 +22,8 @@ mongoose.connect(config.mongo.url, {  retryWrites: true, w: 'majority' })
 // Initialize web-push with your VAPID keys
 webpush.setVapidDetails(
   'mailto:your-email@example.com',
-  process.env.PUBLIC_KEY,
-  process.env.PRIVATE_KEY
+  process.env.NOTIFICATION_PUBLIC_KEY,
+  process.env.NOTIFICATION_PRIVATE_KEY
 );
 
 // Handle change events
