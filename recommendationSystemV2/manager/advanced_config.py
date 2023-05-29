@@ -26,3 +26,4 @@ connectMilvus()
 pprint("INITIALIZING: Setting up Milvus Collection")
 collection, pos_collection = setupMilvusCollection()
 pprint("INITIALIZING: FINALIZED")
+non_indexed_count = 0

@@ -57,6 +57,8 @@ def releaseMilvus(*args):
 
     for collection in args:
         assert(isinstance(collection, Collection))
+        collection.flush()
         collection.release()
+
     
     connections.disconnect("default")

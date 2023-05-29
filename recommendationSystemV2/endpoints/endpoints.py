@@ -8,6 +8,9 @@ from torch import embedding
 from vectorizer.vectorizer import transform
 from manager.advanced_config import collection as col
 from manager.advanced_config import pos_collection as pos_col
+from manager.advanced_config import non_indexed_count
+
+from manager.load_config import CONFIG
 
 
 # LONGITUDE LATITUDE MATHY
@@ -37,6 +40,7 @@ def __checkExistence(favor: Dict) -> None | List:
     return None
 
 def addFavor(favor: Dict) -> bool:
+    global non_indexed_count
     if not __cleanData(favor):
         print("not clean")
         return False
@@ -64,10 +68,14 @@ def addFavor(favor: Dict) -> bool:
     ]
 
     col.insert(new_favor)
-    col.flush()
-
     pos_col.insert(new_pos)
-    pos_col.flush()
+
+    if non_indexed_count >= CONFIG["INDEX_FRECUENCY"]:
+        pos_col.flush()
+        col.flush()
+        non_indexed_count = 0
+    else:
+        non_indexed_count += 1
 
     return True
 

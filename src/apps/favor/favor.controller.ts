@@ -43,6 +43,22 @@ const favor = {
     });
   },
 
+  dislikeFavor: async (req: RequestWithUser, res: Response) => {
+    const userAId: ObjectId = req.user.id;
+    const userBId: ObjectId = req.body.userId;
+
+    try {
+      await favorService.userDislikeFavor(userAId, userBId);
+    } catch (error) {
+      console.log('ERROR in likeFavor: ', error.message);
+      return res.status(401).send({ name: error.name, message: error.message });
+    }
+
+    res.status(200).send({
+      message: 'Favor liked',
+    });
+  },
+
   recommendFavors: async (req: RequestWithUser, res: Response) => {
     const userId: ObjectId = req.user.id;
     const latitude: Number = req.body.latitude;

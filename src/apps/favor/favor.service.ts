@@ -46,6 +46,11 @@ const favorService = {
     if(!user) throw new Error('Error getting user')
 
     const recommendations: Array<any> = await vectorDBService.getRecommendation(favor_history, user, latitude, longitude);
+
+    if(!recommendations){
+      return [];
+    }
+
     let matched_userids: Array<ObjectId> = []
 
     for(let i: number = 0; i < recommendations.length; i++){
@@ -112,6 +117,26 @@ const favorService = {
     }
 
     return userB.favor;
+  },
+
+  userDislikeFavor: async (userAId: ObjectId, userBId: ObjectId): Promise<null> => {
+    if(!userAId) throw new Error(`Error getting userAId`);
+    if(!userBId) throw new Error(`Error getting userBId`);
+    if(userAId == userBId) throw new Error('Can\'t dislike your own favor');
+
+    let userA: IUser = await User.findById(userAId).exec();
+    let userB: IUser = await User.findById(userBId).exec();
+
+    if(!userA) throw new Error('Error getting userA');
+    if (!userB) throw new Error(`Error getting userB`);
+
+    const likedFavor: IFavorExtended = {
+      ...userB.favor,
+      user_id: userB._id
+    };
+    await FavorHistory.updateOne({_id: userA._id}, {$addToSet: {favors: likedFavor}}).exec();
+
+    return ;
   },
 
   lookForMatch: async (userAId: ObjectId, userBId: ObjectId): null | Promise<IMatch> => {
