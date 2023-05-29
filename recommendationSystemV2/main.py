@@ -83,7 +83,7 @@ def editFavor():
 
     return {"status": 1}
 
-@app.route("/recommender", methods=["GET"])
+@app.route("/recommender", methods=["POST"])
 def getRecommendations():
     favor: None | Dict = request.json
 
