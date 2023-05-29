@@ -135,6 +135,10 @@ def getRecommendations(favor: Dict) -> List | None:
         if not __cleanData(fa):
             return None
 
+        if not fa["like"]:
+            print(f"don't like {fa['userid']}")
+            continue;
+
         favor_vector: List = transform(fa["favor"]).flatten().tolist()
         embeddings.append(favor_vector)
 

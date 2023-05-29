@@ -3,6 +3,7 @@ import {IFavor} from '../user/user.model';
 
 export interface IFavorExtended extends IFavor {
   user_id: ObjectId,
+  like: boolean
 }
 
 export interface IFavorHistory extends Document {
@@ -14,6 +15,7 @@ const FavorHistorySchema = new Schema<IFavorHistory>({
   _id: Schema.Types.ObjectId,
   favors: [{
     user_id: Schema.Types.ObjectId,
+    like: Boolean,
     date_published: { type: Date, default: Date.now },
     favor_state: { type: String, enum: ['REVIEWING', 'PUBLISHED', 'DENIED'], default: 'REVIEWING' },
     title: { type: String, required: true },

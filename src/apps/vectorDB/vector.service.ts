@@ -87,7 +87,8 @@ const vectorDBService = {
       history.push({
         'userid': favor_history.favors[i].user_id,
         'favor_title': favor_history.favors[i].title,
-        'favor_description': favor_history.favors[i].description
+        'favor_description': favor_history.favors[i].description,
+        'like': favor_history.favors[i].like
       });
     }
 

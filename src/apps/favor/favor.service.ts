@@ -96,7 +96,8 @@ const favorService = {
 
     const likedFavor: IFavorExtended = {
       ...userB.favor,
-      user_id: userB._id
+      user_id: userB._id,
+      like: true
     };
     await FavorHistory.updateOne({_id: userA._id}, {$addToSet: {favors: likedFavor}}).exec();
 
@@ -132,7 +133,8 @@ const favorService = {
 
     const likedFavor: IFavorExtended = {
       ...userB.favor,
-      user_id: userB._id
+      user_id: userB._id,
+      like: false
     };
     await FavorHistory.updateOne({_id: userA._id}, {$addToSet: {favors: likedFavor}}).exec();
 
