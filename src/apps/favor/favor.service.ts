@@ -5,7 +5,6 @@ import matchService from "../match/match.service";
 import {IMatch} from "../match/match.model";
 import FavorHistory, { IFavorHistory, IFavorRecommendation } from './favor.model';
 import {IFavorExtended} from './favor.model';
-import vectorDBService from '../vectorDB/vector.service';
 
 
 interface IProfile extends IFavor{
@@ -39,43 +38,28 @@ const favorService = {
   },
 
   recommendFavors: async (userId: ObjectId, latitude: Number, longitude: Number): Promise<Array<IFavorRecommendation>> => {
-    const favor_history: IFavorHistory = await FavorHistory.findById(userId).exec();
-    if(!favor_history) throw new Error('Error getting user favor history');
-
-    const user: IUser = await User.findById(userId).exec();
-    if(!user) throw new Error('Error getting user')
-
-    const recommendations: Array<any> = await vectorDBService.getRecommendation(favor_history, user, latitude, longitude);
-    let matched_userids: Array<ObjectId> = []
-
-    for(let i: number = 0; i < recommendations.length; i++){
-      matched_userids.push(recommendations[i].userid);
-    }
-
-    let recommended_favors: Array<IFavorRecommendation> = [];
-    
-    const recommended_users: Array<IUser> = await User.find({
-      '_id': {
-        $in: matched_userids
-      }
-    }).exec();
-    if(!recommended_users) throw new Error("Error recomendations couldn't be found");
-
-    for(let i: number = 0; i < recommended_users.length; i++){
-      recommended_favors.push({
-        user_id: recommended_users[i]._id,
-        name: recommended_users[i].name,
-        age: recommended_users[i].age,
-        favor_date_published: recommended_users[i].favor.date_published,
-        favor_title: recommended_users[i].favor.title,
-        favor_description: recommended_users[i].favor.description,
-        favor_category: recommended_users[i].favor.category,
-        favor_review_avg: recommended_users[i].favor.reviews.review_sum / recommended_users[i].favor.reviews.review_num,
-        favor_img_url: recommended_users[i].favor.imgURL 
+    const users: IUser[] = await User.find({"favor.favor_state": "PUBLISHED"}).exec();
+    if (!users) throw new Error(`Error getting favors`);
+    let favors: any[] = []
+    let favor: Partial<IProfile>;
+    for(let i = 0; i < users.length; i++){
+      if(users[i]._id.toString() == userId.toString()) continue;
+      favor = {...users[i].favor};
+      favors.push({
+        user_id: users[i]._id,
+        name: users[i].name,
+        email: users[i].email,
+        age: users[i].age,
+        favor_date_published: favor[i].favor.date_published,
+        favor_title: favor[i].favor.title,
+        favor_description: favor[i].favor.description,
+        favor_category: favor[i].favor.category,
+        favor_review_avg: favor[i].favor.reviews.review_sum / favor[i].favor.reviews.review_num,
+        favor_img_url: favor[i].favor.imgURL
       });
     }
 
-    return recommended_favors;
+    return favors;
   },
 
   userLikeFavor: async (userAId: ObjectId, userBId: ObjectId): Promise<IFavor> => {
