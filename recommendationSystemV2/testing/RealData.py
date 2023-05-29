@@ -35,7 +35,8 @@ def createUser(info, index):
     review = random.randint(0,5)
     currently = random.choice(status)
     age = random.randint(-3,3)
-    for i in range(9): number+=str(random.randint(0,9))
+    latitude, longitude = 4.6417966233657095, -74.08900373097839
+    for _ in range(9): number+=str(random.randint(0,9))
     
     data = {
         "user": {
@@ -51,11 +52,14 @@ def createUser(info, index):
             "location": "Unal",
             "date_published": f'2023-0{month}-{day}',
             "favor_state": currently,
+            "category": "Any",
             "reviews": {
                 "review_num": day,
                 "review_sum": review*day,
             }
-        }
+        },
+        "latitude": latitude,
+        "longitude": longitude
     }
     return data
 
