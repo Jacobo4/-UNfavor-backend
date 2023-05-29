@@ -19,7 +19,10 @@ def addFavor():
 
     res: bool = endpoints.addFavor({
         "userid": favor["userid"],
-        "favor": f"{favor['favor_title']}\n{favor['favor_description']}"
+        "favor": f"{favor['favor_title']}\n{favor['favor_description']}",
+        "latitude": favor['latitude'],
+        "longitude": favor['longitude'],
+        "category": favor['category']
     })
 
     if not res:
@@ -69,7 +72,10 @@ def editFavor():
 
     res: bool = endpoints.editFavor({
         "userid": favor["userid"],
-        "favor": f"{favor['favor_title']}\n{favor['favor_description']}"
+        "favor": f"{favor['favor_title']}\n{favor['favor_description']}",
+        'longitude': favor['longitude'],
+        'latitude': favor['latitude'],
+        'category': favor['category']
     })
 
     if not res:
@@ -77,15 +83,16 @@ def editFavor():
 
     return {"status": 1}
 
-@app.route("/recommender", methods=["GET"])
+@app.route("/recommender", methods=["POST"])
 def getRecommendations():
     favor: None | Dict = request.json
 
     if not isinstance(favor, Dict):
         return {"status": 0}
 
-    if "history" not in favor:
-        return {"status": 0}
+    for i in ["history", "longitude", "latitude", "category", "userid", "max_distance"]:
+        if i not in favor:
+            return {"status": 0}
 
     for i in range(len(favor["history"])):
         favor["history"][i]["favor"] = f"{favor['history'][i]['favor_title']}\n{favor['history'][i]['favor_description']}"

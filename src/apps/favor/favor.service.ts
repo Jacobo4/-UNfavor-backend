@@ -38,11 +38,14 @@ const favorService = {
     return favors;
   },
 
-  recommendFavors: async (userId: ObjectId): Promise<Array<IFavorRecommendation>> => {
+  recommendFavors: async (userId: ObjectId, latitude: Number, longitude: Number): Promise<Array<IFavorRecommendation>> => {
     const favor_history: IFavorHistory = await FavorHistory.findById(userId).exec();
     if(!favor_history) throw new Error('Error getting user favor history');
 
-    const recommendations: Array<any> = await vectorDBService.getRecommendation(favor_history);
+    const user: IUser = await User.findById(userId).exec();
+    if(!user) throw new Error('Error getting user')
+
+    const recommendations: Array<any> = await vectorDBService.getRecommendation(favor_history, user, latitude, longitude);
     let matched_userids: Array<ObjectId> = []
 
     for(let i: number = 0; i < recommendations.length; i++){
@@ -67,7 +70,8 @@ const favorService = {
         favor_title: recommended_users[i].favor.title,
         favor_description: recommended_users[i].favor.description,
         favor_category: recommended_users[i].favor.category,
-        favor_review_avg: recommended_users[i].favor.reviews.review_sum / recommended_users[i].favor.reviews.review_num
+        favor_review_avg: recommended_users[i].favor.reviews.review_sum / recommended_users[i].favor.reviews.review_num,
+        favor_img_url: recommended_users[i].favor.imgURL 
       });
     }
 

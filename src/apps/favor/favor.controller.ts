@@ -45,10 +45,12 @@ const favor = {
 
   recommendFavors: async (req: RequestWithUser, res: Response) => {
     const userId: ObjectId = req.user.id;
+    const latitude: Number = req.body.latitude;
+    const longitude: Number = req.body.longitude;
 
     let recommended_favors: Array<Partial<IUser>> = [];
     try{
-      recommended_favors = await favorService.recommendFavors(userId);
+      recommended_favors = await favorService.recommendFavors(userId, latitude, longitude);
     }catch (error){
       console.log('ERROR in recommend favors: ', error.message);
       return res.status(401).send({name: error.name, message: error.message});

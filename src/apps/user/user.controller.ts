@@ -23,7 +23,7 @@ const userController = {
 
   signup: async function (req: Request, res: Response) {
     try {
-      const aux: any = await userService.signup(req.body.user, req.body.favor);
+      const aux: any = await userService.signup(req.body.user, req.body.favor, req.body.latitude, req.body.longitude);
       let result: IUser = aux.result;
       let tokens: ITokens = aux.tokens;
       let favor: IFavor = aux.favor;
@@ -93,7 +93,7 @@ const userController = {
 
   updateUser: async function (req: RequestWithUser, res: Response) {
     try {
-      const user: IUser = await userService.updateUserProfileInfo(req.user.id, req.body.newUserData);
+      const user: IUser = await userService.updateUserProfileInfo(req.user.id, req.body.newUserData, req.body.latitude, req.body.longitude);
       res.status(200).send({
         message: 'User Updated',
         user: user,

@@ -2,10 +2,10 @@ import axios, { AxiosResponse } from 'axios';
 import { ObjectId } from 'mongoose';
 import {config} from '../../config/config';
 import { IFavorHistory } from '../favor/favor.model';
-import { IFavor } from '../user/user.model';
+import { IFavor, IUser } from '../user/user.model';
 
 const vectorDBService = {
-  addFavor: async function (userid: ObjectId, favor: IFavor): Promise<boolean> {
+  addFavor: async function (userid: ObjectId, favor: IFavor, latitude: Number, longitude: Number): Promise<boolean> {
     const options: any = {
       method: 'POST',
       url: config.vectorDB.url + '/vectorDB/favor/add',
@@ -16,7 +16,10 @@ const vectorDBService = {
       data: {
         'userid': userid,
         'favor_title': favor.title,
-        'favor_description': favor.description
+        'favor_description': favor.description,
+        'category': favor.category,
+        'latitude': latitude,
+        'longitude': longitude
       }
     };
 
@@ -51,7 +54,7 @@ const vectorDBService = {
     }
   },
 
-  editFavor: async function (userid: ObjectId, favor: IFavor): Promise<boolean> {
+  editFavor: async function (userid: ObjectId, favor: IFavor, latitude: Number, longitude: Number): Promise<boolean> {
     const options: any = {
       method: 'POST',
       url: config.vectorDB.url + '/vectorDB/favor/add',
@@ -62,7 +65,10 @@ const vectorDBService = {
       data: {
         'userid': userid,
         'favor_title': favor.title,
-        'favor_description': favor.description
+        'favor_description': favor.description,
+        'category': favor.category,
+        'latitude': latitude,
+        'longitude': longitude
       }
     };
 
@@ -75,7 +81,7 @@ const vectorDBService = {
     }
   },
   
-  getRecommendation: async function (favor_history: IFavorHistory): Promise<Array<ObjectId>> {
+  getRecommendation: async function (favor_history: IFavorHistory, user: Partial<IUser>, latitude: Number, longitude: Number): Promise<Array<ObjectId>> {
     let history = []
     for(let i = 0; i < favor_history.favors.length; i++){
       history.push({
@@ -86,7 +92,7 @@ const vectorDBService = {
     }
 
     const options: any = {
-      method: 'GET',
+      method: 'POST',
       url: config.vectorDB.url + '/recommender',
       params: {},
       headers: {
@@ -94,7 +100,11 @@ const vectorDBService = {
       },
       data: {
         'userid': favor_history._id,
-        'history': history
+        'history': history,
+        'latitude': latitude,
+        'longitude': longitude,
+        'category': user.preferences.favor_filters.favor_type,
+        'max_distance': user.preferences.favor_filters.max_distance_km
       }
     };
 

@@ -64,17 +64,16 @@ const adminService = {
     getAllReports: async function (): Promise<IUserReport[]> {
         let reports: IUserReport[] = await UserReport.find().exec();
         if (!reports) throw new Error(`Reports not found`);
-        return reports;
-    },
-
-    getReportedUsers: async function(){
-      let reports: IUserReport[] = await this.getAllReports();
-      let repUsers: IUser[] = [];
-      for(let report of reports){
-          let user = await userService.getUserInfo(report.reportedId);
-          repUsers.push(user);
-      }
-      return repUsers;
+      
+        let inform = [];
+        for(let report of reports){
+          let reportData = JSON.parse(JSON.stringify(report));
+          reportData.reporter = await userService.getUserInfo(report.reportedId);
+          reportData.reported = await userService.getUserInfo(report.reportedId);
+          inform.push(reportData);
+        }
+      
+        return inform;
     },
 
     controlReports: async function(reportId: ObjectId, action: string){

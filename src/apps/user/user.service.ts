@@ -25,7 +25,7 @@ const userService = {
     return user;
   },
 
-  signup: async function (userInfo: IUserInfo, favorInfo: IFavor): Promise<{ result: IUser; tokens: ITokens; favor: IFavor}> {
+  signup: async function (userInfo: IUserInfo, favorInfo: IFavor, latitude: Number, longitude: Number): Promise<{ result: IUser; tokens: ITokens; favor: IFavor}> {
     if (!userInfo.password) throw new Error(`Password is required`);
     userInfo.password = bcrypt.hashSync(userInfo.password, bcrypt.genSaltSync(10));
 
@@ -53,7 +53,7 @@ const userService = {
     let favorHResult: IFavorHistory = await favorH.save();
     if(!favorHResult) throw new Error('Error saving favorhistory for user');
 
-    if(! await vectorDB.addFavor(user._id, user.favor)) throw new Error("Error adding user favor to vectorDB");
+    if(! await vectorDB.addFavor(user._id, user.favor, latitude, longitude)) throw new Error("Error adding user favor to vectorDB");
 
     return { result, tokens, favor: result.favor };
   },
@@ -114,9 +114,9 @@ const userService = {
     return accessToken;
   },
 
-  updateUserProfileInfo: async function (userId: ObjectId, newUserData: Partial<IUser>): Promise<IUser> {
+  updateUserProfileInfo: async function (userId: ObjectId, newUserData: Partial<IUser>, latitude: Number, longitude: Number): Promise<IUser> {
     // Campos permitidos para actualización
-    const allowedFields = ['name', 'phone', 'age', 'favor.title', 'favor.description', 'favor.location'];
+    const allowedFields = ['name', 'phone', 'age', 'favor.title', 'favor.description', 'favor.location', 'favor.category'];
     // Filtrar el objeto newUserData para permitir sólo los campos permitidos
     const filteredUserData = _.pick(newUserData, allowedFields);
     console.log("filteredUserData: ", filteredUserData);
@@ -145,7 +145,12 @@ const userService = {
       favor.title = filteredUserData["favor.title"];
     }
 
-    if(flag) if(! await vectorDB.editFavor(userId, favor)) throw new Error("Favor couldn't be update on vector db");
+    if("favor.category" in filteredUserData){
+      flag = true;
+      favor.category = filteredUserData["favor.category"]
+    }
+
+    if(flag) if(! await vectorDB.editFavor(userId, favor, latitude, longitude)) throw new Error("Favor couldn't be update on vector db");
 
     // Retornar el usuario actualizado
     return updateUser;
