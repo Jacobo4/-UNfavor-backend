@@ -25,6 +25,8 @@ def addFavor():
         "category": favor['category']
     })
 
+    print(res)
+
     if not res:
         return {"status": 0}
 

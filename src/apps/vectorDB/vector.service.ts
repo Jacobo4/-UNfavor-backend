@@ -57,7 +57,7 @@ const vectorDBService = {
   editFavor: async function (userid: ObjectId, favor: IFavor, latitude: Number, longitude: Number): Promise<boolean> {
     const options: any = {
       method: 'POST',
-      url: config.vectorDB.url + '/vectorDB/favor/add',
+      url: config.vectorDB.url + '/vectorDB/favor/edit',
       params: {},
       headers: {
         'content-type': 'application/json',

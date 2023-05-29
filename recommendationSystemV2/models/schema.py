@@ -1,5 +1,6 @@
 from pymilvus import DataType, FieldSchema, CollectionSchema
 
+# Define vector shcema for collection favors
 userid = FieldSchema(
     name="userid",
     dtype=DataType.VARCHAR,
@@ -11,18 +12,6 @@ favor = FieldSchema(
     dtype=DataType.FLOAT_VECTOR,
     dim=1024
 )
-posx = FieldSchema(
-    name="posx",
-    dtype=DataType.DOUBLE
-)
-posy = FieldSchema(
-    name="posy",
-    dtype=DataType.DOUBLE
-)
-posz = FieldSchema(
-    name="posz",
-    dtype=DataType.DOUBLE
-)
 category = FieldSchema(
     name="category",
     dtype=DataType.VARCHAR,
@@ -30,8 +19,29 @@ category = FieldSchema(
 )
 
 schema = CollectionSchema(
-    fields=[userid, favor, posx, posy, posz, category],
+    fields=[userid, favor, category],
     description="User Favor collection"
 )
 
 collection_name = "UserFavor"
+
+
+# Define Collection schema for location and distances
+userid = FieldSchema(
+    name="userid",
+    dtype=DataType.VARCHAR,
+    max_length=200,
+    is_primary=True,
+)
+pos = FieldSchema(
+    name="pos",
+    dtype=DataType.FLOAT_VECTOR,
+    dim=3
+)
+
+pos_schema = CollectionSchema(
+    fields=[userid, pos],
+    description="User Position collection"
+)
+
+pos_collection_name = "UserPosition"

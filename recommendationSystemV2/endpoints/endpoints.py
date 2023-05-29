@@ -7,6 +7,7 @@ from torch import embedding
 
 from vectorizer.vectorizer import transform
 from manager.advanced_config import collection as col
+from manager.advanced_config import pos_collection as pos_col
 
 
 # LONGITUDE LATITUDE MATHY
@@ -37,9 +38,11 @@ def __checkExistence(favor: Dict) -> None | List:
 
 def addFavor(favor: Dict) -> bool:
     if not __cleanData(favor):
+        print("not clean")
         return False
 
     if __checkExistence(favor):
+        print("exists")
         return False
 
     favor_vector: List = transform(favor["favor"]).flatten().tolist()
@@ -52,14 +55,19 @@ def addFavor(favor: Dict) -> bool:
     new_favor: List = [
         [favor["userid"]],
         [favor_vector],
-        [posx],
-        [posy],
-        [posz],
         [favor["category"]]
+    ]
+
+    new_pos: List = [
+        [favor["userid"]],
+        [[posx, posy, posz]]
     ]
 
     col.insert(new_favor)
     col.flush()
+
+    pos_col.insert(new_pos)
+    pos_col.flush()
 
     return True
 
@@ -80,23 +88,35 @@ def getFavor(favor: Dict) -> Dict:
     return res
 
 def deleteFavor(favor: Dict) -> bool:
+
+    print("wwww")
     if not __cleanData(favor):
+        print("not clean")
         return False
 
     res: None | List = __checkExistence(favor)
+    
+    print("wwww")
 
     if not res:
+        print("not exists")
         return False
 
-    res2 = col.delete(expr=f"userid in [\"{favor['userid']}\"]")
+    print("sssss")
 
-    if not res2:
+    res2 = col.delete(expr=f"userid in [\"{favor['userid']}\"]")
+    res3 = pos_col.delete(expr=f"userid in [\"{favor['userid']}\"]")
+
+    print("a   ", res2, res3)
+
+    if not res2 or not res3:
         return False
 
     return True
 
 def editFavor(favor: Dict) -> bool:
     if not deleteFavor(favor):
+        print("Couldn't delete")
         return False
 
     return addFavor(favor)
@@ -128,12 +148,33 @@ def getRecommendations(favor: Dict) -> List | None:
         posx = RADIUS * np.cos(favor['latitude']) * np.cos(favor['longitude'])
         posy = RADIUS * np.cos(favor['latitude']) * np.sin(favor['longitude'])
         posz = RADIUS * np.sin(favor['latitude'])
-        max_distance_squared = favor["max_distance"] * favor["max_distance"]
 
-        filters += f" and ((posx - {posx}) ** 2) + ((posy - {posy}) ** 2) + ((posz - {posz}) ** 2) <= {max_distance_squared}"
+        res = pos_col.search(
+            data=[[posx, posy, posz]],
+            anns_field="pos",
+            param=search_params,
+            limit=5,
+            expr=filters
+        )
+
+        allowed_user_ids_list: str = "["
+
+        for aux in res:
+            for entity in aux:
+                som = pos_col.query(f"userid in [\"{entity.id}\"]", offset=0, limit=1, consistency_level="Strong", output_fields=["pos"])[-1]
+                print(entity.id, entity.distance, som["pos"], [posx, posy, posz])
+                if entity.distance <= (favor["max_distance"]**2)+1:
+                    allowed_user_ids_list += f"\"{entity.id}\","
+
+        if allowed_user_ids_list[-1] != '[':
+            allowed_user_ids_list = allowed_user_ids_list[:-1]
+
+        allowed_user_ids_list += "]"
+
+        filters = f"userid in {allowed_user_ids_list}"
 
     if favor["category"] != "Any":
-        filters += f" and category == {favor['category']}"
+        filters += f" && category in [\"{favor['category']}\"]"
 
     print(filters)
 

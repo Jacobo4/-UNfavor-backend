@@ -135,22 +135,25 @@ const userService = {
     let user: IUser = await User.findById(userId);
     let favor: IFavor = user.favor;
 
-    if("favor.description" in filteredUserData){
+    if("favor" in filteredUserData && "description" in filteredUserData.favor){
+      console.log("wadafak")
       flag = true;
-      favor.description = filteredUserData["favor.description"];
+      favor.description = filteredUserData.favor.description;
     }
 
-    if("favor.title" in filteredUserData){
+    if("favor" in filteredUserData && "title" in filteredUserData.favor){
       flag = true;
-      favor.title = filteredUserData["favor.title"];
+      favor.title = filteredUserData.favor.title;
     }
 
-    if("favor.category" in filteredUserData){
+    if("favor" in filteredUserData && "category" in filteredUserData.favor){
       flag = true;
-      favor.category = filteredUserData["favor.category"]
+      favor.category = filteredUserData.favor.category;
     }
 
-    if(flag) if(! await vectorDB.editFavor(userId, favor, latitude, longitude)) throw new Error("Favor couldn't be update on vector db");
+    console.log(favor)
+
+    if(flag) if(! await vectorDB.editFavor(userId, favor, latitude, longitude)) throw new Error("Favor couldn't be updated on vector db");
 
     // Retornar el usuario actualizado
     return updateUser;
