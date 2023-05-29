@@ -70,7 +70,8 @@ const favorService = {
         favor_title: recommended_users[i].favor.title,
         favor_description: recommended_users[i].favor.description,
         favor_category: recommended_users[i].favor.category,
-        favor_review_avg: recommended_users[i].favor.reviews.review_sum / recommended_users[i].favor.reviews.review_num
+        favor_review_avg: recommended_users[i].favor.reviews.review_sum / recommended_users[i].favor.reviews.review_num,
+        favor_img_url: recommended_users[i].favor.imgURL 
       });
     }
 

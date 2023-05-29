@@ -38,6 +38,7 @@ export interface IFavorRecommendation {
   favor_description: string;
   favor_category: string;
   favor_review_avg: number;
+  favor_img_url: string;
 }
 
 export default mongoose.model<IFavorHistory>('FavorHistory', FavorHistorySchema);
