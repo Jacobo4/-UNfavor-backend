@@ -64,7 +64,7 @@ const adminService = {
     getAllReports: async function (): Promise<IUserReport[]> {
         let reports: IUserReport[] = await UserReport.find().exec();
         if (!reports) throw new Error(`Reports not found`);
-
+      
         let inform = [];
         for(let report of reports){
           let reportData = JSON.parse(JSON.stringify(report));
@@ -72,6 +72,7 @@ const adminService = {
           reportData.reported = await userService.getUserInfo(report.reportedId);
           inform.push(reportData);
         }
+      
         return inform;
     },
 
